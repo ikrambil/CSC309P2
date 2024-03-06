@@ -1,0 +1,10 @@
+<form action="{% url 'accounts:login' %}" method="post">
+    {% csrf_token %}
+
+    {{form.as_p}}
+    <input type="submit" value="Login">
+
+    <br />
+
+    {% if error_message %}{{ error_message }}{% endif %}
+</form>
