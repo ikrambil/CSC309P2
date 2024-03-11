@@ -1,18 +1,28 @@
 from django.http import JsonResponse
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, update_session_auth_hash, logout
 from rest_framework import generics, permissions
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.views import APIView
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer
 
 # Create your views here.
 class RegisterAPIView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        if response.status_code == 201: 
+            # 'login_url' is added in the UserSerializer create method
+            pass
+
+        return response
+
 class LoginAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
@@ -26,6 +36,7 @@ class LoginAPIView(APIView):
                 return JsonResponse({'message': "Login successful."})
             
         return JsonResponse({'error_message': "Username or password is invalid."})
+
     
 class LogoutAPIView(APIView):
     def post(self, request):
