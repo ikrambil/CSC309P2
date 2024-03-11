@@ -26,8 +26,7 @@ class CalendarDetailView(RetrieveAPIView):
 
     def get_queryset(self):
         return Calendar.objects.filter(owner=self.request.user)
-    
-    
+
 class CalendarRecommendationsView(APIView):
     # permission_classes = [IsAuthenticated]
 
@@ -54,6 +53,7 @@ class CalendarRecommendationsView(APIView):
             return Response(schedules, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Unable to generate scheduling options due to conflicting or insufficient availabilities.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UpdateInvitationView(APIView):
     permission_classes = [IsAuthenticated]
