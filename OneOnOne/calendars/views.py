@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView
 from .models import Calendar, Invitation
 from .serializers import CalendarSerializer, CalendarDetailSerializer, InvitationSerializer
+from .scheduler import schedule_invitations
 
 class CalendarCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -25,7 +26,34 @@ class CalendarDetailView(RetrieveAPIView):
 
     def get_queryset(self):
         return Calendar.objects.filter(owner=self.request.user)
+    
+    
+class CalendarRecommendationsView(APIView):
+    # permission_classes = [IsAuthenticated]
 
+    def get(self, request, calendar_id, format=None):
+        # Ensure the calendar exists and the request user has permission to access it
+        try:
+            calendar = Calendar.objects.get(pk=calendar_id)
+        except Calendar.DoesNotExist:
+            return Response({'message': 'Calendar not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Temporarily commented out to focus on the logic; uncomment in actual use
+        # if calendar.owner != request.user:
+        #     return Response({'message': 'You do not have permission to access this calendar.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Fetch accepted invitations for the calendar
+        invitations = Invitation.objects.filter(calendar=calendar, status='Accepted')
+        if not invitations.exists():
+            return Response({'message': 'There are no accepted invitations for this calendar.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Call the scheduling function with prepared data
+        schedules = schedule_invitations(calendar.availability, invitations)
+        
+        if schedules:
+            return Response(schedules, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Unable to generate scheduling options due to conflicting or insufficient availabilities.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateInvitationView(APIView):
     permission_classes = [IsAuthenticated]
