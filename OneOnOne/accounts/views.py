@@ -1,64 +1,76 @@
-from django.http import JsonResponse
-from django.urls import reverse
-from django.contrib.auth import authenticate, login, update_session_auth_hash, logout
-from rest_framework import generics, permissions
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
-from rest_framework.views import APIView
-from .serializers import UserSerializer, LoginSerializer
+from django.contrib.auth import get_user_model, authenticate, logout, login
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .serializers import RegisterSerializer, LoginSerializer, EditProfileSerializer
+from django.contrib.auth import update_session_auth_hash
 
-# Create your views here.
-class RegisterAPIView(generics.CreateAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+User = get_user_model()
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+
+class LoginView(generics.CreateAPIView):
+    serializer_class = LoginSerializer
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if response.status_code == 201: 
-            # 'login_url' is added in the UserSerializer create method
-            pass
+        username = serializer.validated_data.get('username')
+        password = serializer.validated_data.get('password')
 
-        return response
+        if username == "" or password == "":
+            return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginAPIView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
+        user = authenticate(username=username, password=password)
 
-            if username == "" or password == "":
-                return JsonResponse({'error_message': "Username or password is invalid."}, status=400)
-            
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return JsonResponse({'message': "Login successful."})
-            
-        return JsonResponse({'error_message': "Username or password is invalid."})
+        if user is not None:
+            login(request, user)
+            return Response({'detail': 'Login successful'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    
-class LogoutAPIView(APIView):
-    def post(self, request):
-        if request.user.is_authenticated:
-            logout(request)
-            return JsonResponse({'message': "Logout successful."})
-        return JsonResponse({'error_message': "User not authenticated."}, status=401)
-        
-class ViewProfileAPIView(RetrieveAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+class LogoutView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        logout(request)
+        return Response({'detail': 'Logout successful'}, status=status.HTTP_200_OK)
+
+    def get(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class EditProfileView(generics.UpdateAPIView):
+    serializer_class = EditProfileSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
-    
-class EditProfileAPIView(RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        return self.request.user
-    
-    def perform_update(self, serializer):
-        user = serializer.save()
-        update_session_auth_hash(self.request, user)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        original_data = self.get_serializer(instance).data  # Get the original data before update
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        # Handle password update separately
+        if 'password' in serializer.validated_data and serializer.validated_data['password']:
+            instance.set_password(serializer.validated_data['password'])
+            update_session_auth_hash(request, instance)
+
+        self.perform_update(serializer)
+
+        # Return updated profile details along with unchanged fields
+        updated_data = serializer.data
+        response_data = {'detail': 'Profile updated successfully', 'profile': {}}
+
+        # Include unchanged fields from the original profile data
+        for key, value in original_data.items():
+            response_data['profile'][key] = updated_data.get(key, value)
+
+        return Response(response_data, status=status.HTTP_200_OK)

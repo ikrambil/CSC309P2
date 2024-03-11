@@ -1,28 +1,37 @@
-from django.urls import reverse
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
-from django.contrib.auth.models import User
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+User = get_user_model()
 
+class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password']
+        fields = ('username', 'password', 'email', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-
-        # Check if 'username' is present in validated_data
-        if 'username' not in validated_data:
-            raise serializers.ValidationError("Username is required.")
-
-        user = User.objects.create(**validated_data)
-        user.set_password(password)
-        user.save()
-
-        # Do not return a dictionary, let the instance be created
+        user = User.objects.create_user(**validated_data)
         return user
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField()
+
+    def validate(self, data):
+        user = authenticate(**data)
+        
+        if not user or not user.is_active:
+            raise serializers.ValidationError('Incorrect credentials')
+
+        data['user'] = user
+        return data
+
+class EditProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('password', 'email', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True, 'required': False}}
+
+    def validate_password(self, value):
+        # Allow leaving password field empty
+        return value
