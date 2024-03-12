@@ -1,3 +1,4 @@
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model, authenticate, logout, login
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -24,10 +25,10 @@ class LoginView(generics.CreateAPIView):
             return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_400_BAD_REQUEST)
 
         user = authenticate(username=username, password=password)
-
         if user is not None:
             login(request, user)
-            return Response({'detail': 'Login successful'}, status=status.HTTP_200_OK)
+            token, _ = Token.objects.get_or_create(user=user)  # Get or create a token for the user
+            return Response({'detail': 'Login successful', 'token': token.key}, status=status.HTTP_200_OK)
         else:
             return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_401_UNAUTHORIZED)
 

@@ -3,6 +3,7 @@ from .models import Calendar, Invitation
 import json
 from dateutil import parser
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 
 def validate_availability(availability):
     try:
@@ -21,35 +22,44 @@ def validate_availability(availability):
     return json.dumps(availability_list)  # Store as serialized JSON string
 
 class CalendarSerializer(serializers.ModelSerializer):
-    availability = serializers.CharField(validators=[validate_availability])
+    participants = serializers.ListField(child=serializers.EmailField(), required=False)
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner', 'availability']
+        fields = ['id', 'name', 'description', 'owner', 'participants', 'availability']
+        extra_kwargs = {'owner': {'read_only': True}}  # Make owner read-only to avoid it being required in the input
+
+    def create(self, validated_data):
+        participants = validated_data.pop('participants', [])
+        print(participants)
+        # Serialize participants list to JSON string before saving, if not using ArrayField
+        participants_json = json.dumps(participants, cls=DjangoJSONEncoder)
+        calendar = Calendar.objects.create(**validated_data, participants=participants_json)
+        return calendar
 
 class InvitationSerializer(serializers.ModelSerializer):
-    availability = serializers.CharField(validators=[validate_availability])
+    availability = serializers.CharField(validators=[validate_availability], allow_blank=True)
 
     class Meta:
         model = Invitation
-        fields = ['id', 'calendar', 'invitee', 'status', 'availability']
-
+        fields = ['id', 'calendar', 'invitee_email', 'status', 'availability']
 
 class InvitationDetailSerializer(serializers.ModelSerializer):
-    invitee_username = serializers.ReadOnlyField(source='invitee.username')
-    invitee_availability = serializers.SerializerMethodField()
-
+    # This serializer will be used to show each invitation's details within a calendar detail view
+    
     class Meta:
         model = Invitation
-        fields = ['invitee_username', 'status', 'invitee_availability']
+        fields = ['invitee_email', 'status', 'availability']
+        # availability field is included in case you also want to show this
 
-    def get_invitee_availability(self, obj):
-        # Convert the serialized string back to a list for the response
-        return json.loads(obj.availability)
+    def get_availability(self, obj):
+        # Parse and return the availability JSON string as a Python object (list)
+        # This makes it easier to work with in the frontend
+        return json.loads(obj.availability) if obj.availability else []
 
 class CalendarDetailSerializer(serializers.ModelSerializer):
     owner_username = serializers.ReadOnlyField(source='owner.username')
-    invitations = InvitationDetailSerializer(many=True, source='invitation_set')
+    invitations = InvitationDetailSerializer(many=True, read_only=True)
     availability = serializers.SerializerMethodField()
 
     class Meta:
@@ -57,4 +67,5 @@ class CalendarDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations']
 
     def get_availability(self, obj):
+        # Assuming availability is stored as a JSON string in the database
         return json.loads(obj.availability)
