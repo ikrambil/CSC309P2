@@ -5,6 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView
+
+from django.urls import reverse
+from django.core.mail import send_mail
+
 from .models import Calendar, Invitation
 from .serializers import CalendarSerializer, CalendarDetailSerializer, InvitationSerializer
 from .scheduler import schedule_invitations
@@ -13,9 +17,24 @@ class CalendarCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = CalendarSerializer(data=request.data)
+        serializer = CalendarSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(owner=request.user)
+            calendar = serializer.save(owner=request.user)
+            participant_emails = calendar.get_participant_emails()
+            for email in participant_emails:
+                invitation = Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
+                availability_url = request.build_absolute_uri(reverse('update-invitation', kwargs={'token': invitation.token}))
+                
+                # Send an email to the participant
+                send_mail(
+                    'You are invited to submit your availability',
+                    f'Please submit your availability by following this link: {availability_url}',
+                    'from@example.com',  # Use your actual email
+                    [email],
+                    fail_silently=False,
+                )
+
+                Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -56,31 +75,30 @@ class CalendarRecommendationsView(APIView):
 
 
 class UpdateInvitationView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
-    def patch(self, request, pk, format=None):
-        # Fetch the invitation instance; ensure the user is the invitee and the status is Pending
+    def patch(self, request, token, format=None):
         try:
-            invitation = Invitation.objects.get(pk=pk, invitee=request.user, status='Pending')
+            invitation = Invitation.objects.get(token=token)
         except Invitation.DoesNotExist:
-            return Response({'message': 'Invitation not found or access denied.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Parse and validate the availability data from the request
-        availability_data = request.data.get('availability', '[]')
+        availability_data = request.data.get('availability')
         try:
-            # Ensure it's a valid JSON string representing a list
             availability_list = json.loads(availability_data)
             if not isinstance(availability_list, list):
                 raise ValueError
-            # Optionally, further validate the content of availability_list here
         except ValueError:
             return Response({'message': 'Invalid availability format.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Update the invitation status and availability
         invitation.status = 'Accepted'
-        invitation.availability = json.dumps(availability_list)  # Serialize the list back to a string
+        invitation.availability = json.dumps(availability_list)
         invitation.save()
 
-        # Respond with the updated invitation data
-        serializer = InvitationSerializer(invitation)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message': 'Availability updated successfully.'}, status=status.HTTP_200_OK)
+
+class InvitationDetailView(RetrieveAPIView):
+    queryset = Invitation.objects.all()
+    serializer_class = InvitationSerializer
+    lookup_field = 'token'  # Use the invitation's token to retrieve it
+    permission_classes = []
