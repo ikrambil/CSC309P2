@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model, authenticate, logout, login
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer, LoginSerializer, EditProfileSerializer
+from .serializers import *
 from django.contrib.auth import update_session_auth_hash
 
 User = get_user_model()
@@ -72,5 +72,44 @@ class EditProfileView(generics.UpdateAPIView):
         # Include unchanged fields from the original profile data
         for key, value in original_data.items():
             response_data['profile'][key] = updated_data.get(key, value)
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+# class ContactView(generics.UpdateAPIView):
+#     serializer_class = ContactSerializer
+#     permission_classes = [IsAuthenticated]
+#     Response({'contacts': 'placeholder'}, status=status.HTTP_200_OK)
+
+class AddContactView(generics.UpdateAPIView):
+    serializer_class = AddContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        original_data = self.get_serializer(instance).data  # Get the original data before update
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        # Return updated profile details along with unchanged fields
+        updated_data = serializer.data
+        response_data = {'detail': 'Profile updated successfully', 'contacts': {}}
+
+        # if User.objects.exclude(pk=self.get_serializer(instance).pk).filter(username="nealon").exists():
+        #     print("user exists")
+
+        # Include unchanged fields from the original profile data
+        name = updated_data['contact_name']
+        email = updated_data['contact_email']
+        response_data['contacts'][name] = email
+        # for key, value in original_data.items():
+        #     response_data['profile'][key] = updated_data.get(key, value)
 
         return Response(response_data, status=status.HTTP_200_OK)

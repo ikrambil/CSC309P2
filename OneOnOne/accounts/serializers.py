@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
+from .models import Contact
 
 User = get_user_model()
 
@@ -27,6 +28,7 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 class EditProfileSerializer(serializers.ModelSerializer):
+    # contact = serializers.CharField(max_length=120, required=False)
     class Meta:
         model = User
         fields = ('password', 'email', 'first_name', 'last_name')
@@ -35,3 +37,16 @@ class EditProfileSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         # Allow leaving password field empty
         return value
+
+
+class AddContactSerializer(serializers.ModelSerializer):
+    contact_name = serializers.CharField(max_length=120, required=False)
+    contact_email = serializers.EmailField(max_length=120, required=False)
+
+    class Meta:
+        model = Contact
+        fields = ('contact_name', 'contact_email')
+
+
+# class ContactSerializer(serializers.ModelSerializer):
+#     print("hey")
