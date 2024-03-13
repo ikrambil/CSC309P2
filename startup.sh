@@ -8,7 +8,7 @@ source venv/bin/activate
 pip install --upgrade pip
 
 # Install required Python packages
-pip install django djangorestframework python-dateutil
+pip install django djangorestframework python-dateutil jsonfield
 
 cd OneOnOne
 
