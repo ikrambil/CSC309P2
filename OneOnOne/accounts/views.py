@@ -1,4 +1,8 @@
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import get_user_model, authenticate, logout, login
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -37,17 +41,32 @@ class LoginView(generics.CreateAPIView):
         else:
             return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_401_UNAUTHORIZED)
 
-
-class LogoutView(generics.DestroyAPIView):
+class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
+    serializer_class = TokenObtainPairSerializer
 
-    def destroy(self, request, *args, **kwargs):
-        logout(request)
-        return Response({'detail': 'Logout successful'}, status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
 
-    def get(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error_message': "Username or password is invalid."}, status=status.HTTP_401_UNAUTHORIZED)
 
+        # Serializer is valid, return the token pair
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get('refresh')
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({'detail': 'Logout successful'}, status=status.HTTP_200_OK)
+        except TokenError as e:
+            return Response({'detail': 'Logout failed', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ContactView(APIView):
 
