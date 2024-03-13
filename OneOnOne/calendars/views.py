@@ -78,7 +78,7 @@ class CalendarUpdateAvailabilityView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CalendarRecommendationsView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, calendar_id, format=None):
         # Ensure the calendar exists and the request user has permission to access it
@@ -111,7 +111,7 @@ class FinalizeCalendarView(APIView):
 
         # Ensure that only the calendar owner can finalize it
         if calendar.owner != request.user:
-            return Response({'message': 'You do not have permission to finalize this calendar.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'message': 'You have to be the owner to finalize this calendar.'}, status=status.HTTP_403_FORBIDDEN)
 
         # Update the calendar's finalized status and finalized_schedule
         finalized_schedule = request.data.get('finalized_schedule')

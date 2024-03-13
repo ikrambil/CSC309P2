@@ -73,7 +73,7 @@ class CalendarDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations']
+        fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations', 'finalized', 'finalized_schedule']
 
     def get_availability(self, obj):
         # Assuming availability is stored as a JSON string in the database
