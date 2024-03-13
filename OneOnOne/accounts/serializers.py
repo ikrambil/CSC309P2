@@ -25,13 +25,3 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
-
-class EditProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('password', 'email', 'first_name', 'last_name')
-        extra_kwargs = {'password': {'write_only': True, 'required': False}}
-
-    def validate_password(self, value):
-        # Allow leaving password field empty
-        return value
