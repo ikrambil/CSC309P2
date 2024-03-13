@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
-
+from accounts.models import Contact
 from .models import Calendar, Invitation
 from .serializers import CalendarSerializer, CalendarDetailSerializer, InvitationSerializer
 from .scheduler import schedule_invitations
@@ -23,6 +23,16 @@ class CalendarCreateView(APIView):
         if serializer.is_valid():
             calendar = serializer.save(owner=request.user)
             participant_emails = calendar.get_participant_emails()
+            missing_contacts = [
+                email for email in participant_emails
+                if not Contact.objects.filter(owner=request.user, email=email).exists()
+            ]
+
+            if missing_contacts:
+                return Response({
+                    'error': 'All participants must be in your contacts.',
+                    'missing_contacts': missing_contacts
+                }, status=status.HTTP_400_BAD_REQUEST)
             for email in participant_emails:
                 invitation = Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
                 availability_url = request.build_absolute_uri(reverse('update-invitation', kwargs={'token': invitation.token}))
