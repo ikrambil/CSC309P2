@@ -40,13 +40,24 @@ class EditProfileSerializer(serializers.ModelSerializer):
 
 
 class AddContactSerializer(serializers.ModelSerializer):
-    contact_name = serializers.CharField(max_length=120, required=False)
-    contact_email = serializers.EmailField(max_length=120, required=False)
+    contact_name = serializers.CharField(max_length=120, required=True)
+    contact_email = serializers.EmailField(max_length=120, required=True)
 
     class Meta:
         model = Contact
         fields = ('contact_name', 'contact_email')
 
 
+class DeleteContactSerializer(serializers.ModelSerializer):
+    contact_email = serializers.EmailField(max_length=120, required=True)
+
+    class Meta:
+        model = Contact
+        fields = ('contact_email',)
+
+
 # class ContactSerializer(serializers.ModelSerializer):
-#     print("hey")
+#
+#     class Meta:
+#         model = Contact
+#         fields = ('user', 'name', 'email')

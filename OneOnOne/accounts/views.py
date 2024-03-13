@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from django.contrib.auth import update_session_auth_hash
+from rest_framework.views import APIView
+from django.core import serializers
+from .models import Contact
 
 User = get_user_model()
 
@@ -76,10 +79,18 @@ class EditProfileView(generics.UpdateAPIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
-# class ContactView(generics.UpdateAPIView):
-#     serializer_class = ContactSerializer
-#     permission_classes = [IsAuthenticated]
-#     Response({'contacts': 'placeholder'}, status=status.HTTP_200_OK)
+class ContactView(APIView):
+
+    def get(self, request):
+        contacts = Contact.objects.filter(owner=request.user).values()
+        newContacts = []
+        for x in contacts:
+            new = dict(list(x.items())[-2:])
+            newContacts.append(new)
+
+        #qs_json = serializers.serialize('json', contacts)
+        return Response({"contacts": newContacts})
+
 
 class AddContactView(generics.UpdateAPIView):
     serializer_class = AddContactSerializer
@@ -89,27 +100,61 @@ class AddContactView(generics.UpdateAPIView):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        original_data = self.get_serializer(instance).data  # Get the original data before update
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
+        serializer = self.get_serializer(instance, data=request.data)
+        print(self.request.user)
+        if not serializer.is_valid():
+            response_data = {'detail': 'Both fields are required'}
+            return Response(response_data)
 
         self.perform_update(serializer)
 
         # Return updated profile details along with unchanged fields
         updated_data = serializer.data
-        response_data = {'detail': 'Profile updated successfully', 'contacts': {}}
-
-        # if User.objects.exclude(pk=self.get_serializer(instance).pk).filter(username="nealon").exists():
-        #     print("user exists")
+        response_data = {'detail': 'Contact added successfully', 'contacts': {}}
 
         # Include unchanged fields from the original profile data
         name = updated_data['contact_name']
         email = updated_data['contact_email']
         response_data['contacts'][name] = email
-        # for key, value in original_data.items():
-        #     response_data['profile'][key] = updated_data.get(key, value)
+
+        newContact = Contact.create(self.request.user, name, email)
+        newContact.save()
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class DeleteContactView(generics.UpdateAPIView):
+    serializer_class = DeleteContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data)
+        if not serializer.is_valid():
+            response_data = {'detail': 'Email field is required'}
+            return Response(response_data)
+
+        self.perform_update(serializer)
+
+        # Return updated profile details along with unchanged fields
+        updated_data = serializer.data
+        response_data = {'detail': 'Contact removed successfully', 'contacts': {}}
+
+        email = updated_data['contact_email']
+
+        if not Contact.objects.filter(email=email):
+            response_data = {'detail': 'No contact with that email exists'}
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        Contact.objects.filter(email=email).delete()
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+# if User.objects.exclude(pk=self.get_serializer(instance).pk).filter(username="nealon").exists():
+#     print("user exists")
