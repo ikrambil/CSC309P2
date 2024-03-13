@@ -1,55 +1,115 @@
 import json
 from datetime import datetime, timedelta
+from collections import defaultdict
+from itertools import cycle
 
 def parse_availability(availability_json):
     """Parse the JSON availability data into a list of datetime ranges."""
     availability = json.loads(availability_json)
     return [(datetime.fromisoformat(slot['start_time']), datetime.fromisoformat(slot['end_time'])) for slot in availability]
 
-def find_overlap(host_slots, invitee_slots):
-    """Find a single overlapping time slot between host and invitee."""
+# def find_overlaps(host_slots, invitee_slots, num_schedules=3):
+#     """Find up to num_schedules overlapping time slots between host and invitee."""
+#     overlaps = []
+#     for host_start, host_end in host_slots:
+#         for inv_start, inv_end in invitee_slots:
+#             start_max = max(host_start, inv_start)
+#             end_min = min(host_end, inv_end)
+#             if start_max + timedelta(minutes=30) <= end_min:
+#                 overlaps.append([start_max.isoformat(), (start_max + timedelta(minutes=30)).isoformat()])
+#                 if len(overlaps) == num_schedules:
+#                     return overlaps
+#     return overlaps
+
+def find_overlaps(host_slots, invitee_slots, num_schedules=3):
+    """Find up to num_schedules overlapping time slots between host and invitee."""
+    overlaps = []
     for host_start, host_end in host_slots:
         for inv_start, inv_end in invitee_slots:
             start_max = max(host_start, inv_start)
             end_min = min(host_end, inv_end)
-            if start_max + timedelta(minutes=30) < end_min:
-                return [start_max.isoformat(), (start_max + timedelta(minutes=30)).isoformat()]
-    return None
+            while start_max + timedelta(minutes=30) <= end_min:
+                overlaps.append([start_max.isoformat(), (start_max + timedelta(minutes=30)).isoformat()])
+                if len(overlaps) == num_schedules:
+                    return overlaps
+                start_max += timedelta(minutes=30)
+    return overlaps
+
+# def schedule_invitations(host_availability, invitations):
+#     """Attempt to schedule meetings based on availabilities, offering grouped schedules."""
+#     # Store potential meeting times for each invitee
+#     invitee_meetings = defaultdict(list)
+#     host_slots = parse_availability(host_availability)
+
+#     for invitation in invitations:
+#         invitee_slots = parse_availability(invitation.availability)
+#         possible_overlaps = find_overlaps(host_slots, invitee_slots, num_schedules=3)
+
+#         if possible_overlaps:
+#             invitee_meetings[invitation.invitee_email].extend(possible_overlaps)
+#             # Adjust host slots based on the overlaps found
+#             for overlap in possible_overlaps:
+#                 overlap_start, overlap_end = datetime.fromisoformat(overlap[0]), datetime.fromisoformat(overlap[1])
+#                 host_slots = [slot for slot in host_slots if slot[1] <= overlap_start or slot[0] >= overlap_end]
+
+#     # Compile up to three schedules from the collected meeting times
+#     schedules = []
+#     for schedule_num in range(3):
+#         current_schedule = []
+#         for invitee, times in invitee_meetings.items():
+#             if len(times) > schedule_num:
+#                 current_schedule.append({
+#                     'invitee': invitee,
+#                     'meeting_times': times[schedule_num]
+#                 })
+#         if current_schedule:
+#             schedules.append(current_schedule)
+
+#     return schedules
 
 def schedule_invitations(host_availability, invitations):
-    """Attempt to schedule meetings based on availabilities."""
-    schedules = []
+    """Attempt to schedule meetings based on availabilities, offering grouped schedules,
+    reusing old timeslots if necessary to ensure all users are included."""
+    invitee_meetings = defaultdict(list)
     host_slots = parse_availability(host_availability)
 
     for invitation in invitations:
         invitee_slots = parse_availability(invitation.availability)
-        overlap = find_overlap(host_slots, invitee_slots)
-        if overlap:
-            schedules.append({
-                'invitee': invitation.invitee.username,
-                'meeting_time': overlap
-            })
+        possible_overlaps = find_overlaps(host_slots, invitee_slots, num_schedules=3)
 
-            overlap_start, overlap_end = datetime.fromisoformat(overlap[0]), datetime.fromisoformat(overlap[1])
-
-            # Find the index of the slot to remove
-            slot_index = next((i for i, slot in enumerate(host_slots) if slot[0] == overlap_start and slot[1] == overlap_end), None)
-
-            # If a matching slot is found, remove it
-            # Update the host's availability by reducing the slot used for the meeting
-            for i, (host_start, host_end) in enumerate(host_slots):
-                if host_start <= overlap_start < host_end:
-                    # Adjust the start or end time of the current host slot based on the overlap
-                    if host_start == overlap_start:
-                        host_slots[i] = (overlap_start + timedelta(minutes=30), host_end)
-                    else:
-                        host_slots[i] = (host_start, overlap_start)
-                    break
+        if possible_overlaps:
+            invitee_meetings[invitation.invitee_email].extend(possible_overlaps)
+            # Adjust host slots based on the overlaps found
+            for overlap in possible_overlaps:
+                overlap_start, overlap_end = datetime.fromisoformat(overlap[0]), datetime.fromisoformat(overlap[1])
+                host_slots = [slot for slot in host_slots if slot[1] <= overlap_start or slot[0] >= overlap_end]
         else:
-            # Handle cases where no overlap is found
-            schedules.append({
-                'invitee': invitation.invitee.username,
-                'meeting_time': 'No available time slot'
-            })
+            # If no overlaps are found, indicate a placeholder for scheduling attempts
+            invitee_meetings[invitation.invitee_email].append('No available time slot')
+
+    # Compile schedules, reusing timeslots as necessary
+    schedules = []
+    for schedule_num in range(3):
+        current_schedule = []
+        for invitee, times in invitee_meetings.items():
+            # Use cycling iterator to reuse timeslots if fewer than 3 are available
+            times_iterator = cycle(times)
+            for _ in range(schedule_num + 1):  # Advance iterator to the current schedule number
+                selected_time = next(times_iterator)
+
+            if selected_time != 'No available time slot':
+                current_schedule.append({
+                    'invitee': invitee,
+                    'meeting_times': selected_time
+                })
+            else:
+                # Handle cases where no timeslots are available by reusing any placeholder
+                current_schedule.append({
+                    'invitee': invitee,
+                    'meeting_times': selected_time
+                })
+
+        if current_schedule:
+            schedules.append(current_schedule)
 
     return schedules

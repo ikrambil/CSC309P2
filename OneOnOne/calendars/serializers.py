@@ -4,6 +4,7 @@ import json
 from dateutil import parser
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
+# TODO: from accounts.models import Contact
 
 def validate_availability(availability):
     try:
@@ -36,6 +37,14 @@ class CalendarSerializer(serializers.ModelSerializer):
         participants_json = json.dumps(participants, cls=DjangoJSONEncoder)
         calendar = Calendar.objects.create(**validated_data, participants=participants_json)
         return calendar
+    
+    # TODO: uncomment this when the Contact model is done and pushed.
+    # def validate_participants(self, participants):
+    #     # Check that all participant emails are in the Contact table
+    #     for email in participants:
+    #         if not Contact.objects.filter(email=email).exists():
+    #             raise serializers.ValidationError(f"The user ({email}) does not exist in your contacts.")
+    #     return participants
 
 class InvitationSerializer(serializers.ModelSerializer):
     availability = serializers.CharField(validators=[validate_availability], allow_blank=True)
