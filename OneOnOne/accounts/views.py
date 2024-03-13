@@ -2,15 +2,17 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model, authenticate, logout, login
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from .serializers import RegisterSerializer, LoginSerializer
 
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
 class LoginView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
     def create(self, request, *args, **kwargs):
@@ -33,7 +35,7 @@ class LoginView(generics.CreateAPIView):
 
 
 class LogoutView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def destroy(self, request, *args, **kwargs):
         logout(request)

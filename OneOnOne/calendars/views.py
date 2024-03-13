@@ -48,6 +48,25 @@ class CalendarDetailView(RetrieveAPIView):
     def get_queryset(self):
         return Calendar.objects.filter(owner=self.request.user)
 
+class CalendarUpdateAvailabilityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        calendar = get_object_or_404(Calendar, pk=pk, owner=request.user)  # Ensure the user owns the calendar
+        # Load the current availability data and update it with the new data provided in the request
+        new_availability = request.data.get('availability')
+        if new_availability is None:
+            return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Assuming the availability data is sent as a serialized JSON string and the Calendar model
+        # expects it in the same format. Validate the data as necessary before saving.
+        calendar.availability = new_availability
+        calendar.save()
+
+        # Optionally, return the updated calendar data using a serializer
+        serializer = CalendarSerializer(calendar)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class CalendarRecommendationsView(APIView):
     permission_classes = [AllowAny]
 
