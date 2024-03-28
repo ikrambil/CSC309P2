@@ -46,7 +46,7 @@ class CalendarCreateView(APIView):
                     fail_silently=False,
                 )
 
-                Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
+                #Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
