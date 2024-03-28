@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css"
+            rel="stylesheet" />
+        <link rel="stylesheet" href="style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <main>
+        
+
+        <aside id="logo-sidebar"
+            class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+            aria-label="Sidebar">
+            <div
+                class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+                <a href="dashboard.html" class="flex items-center ps-2.5 mb-5">
+                    <img src="https://flowbite.com/docs/images/logo.svg"
+                        class="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
+                    <span
+                        class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">1on1</span>
+                </a>
+                <ul class="space-y-2 font-medium">
+                    <li class="pt-8">
+                        <a type="button" href="calendar.html"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center inline-flex items-center">
+                            Create Calendar
+                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 10">
+                                <path stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"
+                                    d="M1 5h12m0 0L9 1m4 4L9 9" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dashboard.html"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <svg
+                                class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 22 21">
+                                <path
+                                    d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
+                                <path
+                                    d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="invited.html"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 512 512">
+                                <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                                <path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Invites</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="contact.html"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <svg
+                                class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 20 18">
+                                <path
+                                    d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Contacts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="login.html"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <svg
+                                class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" 
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z" />
+                                <path
+                                    d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z" />
+                                <path
+                                    d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Sign Out</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- ====== Cards Section Start -->
+        
+        <div class="p-8 sm:ml-64"> 
+            <div class="text-4xl text-left w-full border-b p-4">
+                <h1 class=font-bold> Invites: </h1>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-4">
+
+                <div class="card bg-white border border-gray-200 rounded-lg shadow-md p-4 m-4 w-full aspect-ratio-4/3 transition-transform duration-300 hover:-translate-y-1">
+                    <div class="flex justify-between items-center p-4">
+                        <div class="flex-1">
+                            <h5 class="text-2xl font-bold text-gray-900 dark:text-white">Lunch with Tom</h5>
+                            <p class="text-gray-500 dark:text-gray-400">Thursday, Feb. 22nd, 2024, 1:00-2:00 PM</p>
+                            <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300 mt-4">
+                                <span class="w-2 h-2 me-1 bg-red-500 rounded-full"></span>
+                                Not Responded
+                            </span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="p-4 pt-8 pb-0 border-gray-200 dark:border-gray-700">
+                        <a href="in-progress-schedule.html" class="text-blue-600 hover:underline dark:text-blue-500">Edit Availability</a>
+                    </div>
+                    <div class="p-4 border-gray-200 dark:border-gray-700">
+                        <a href="in-progress-schedule.html" class="text-blue-600 hover:underline dark:text-blue-500">Decline</a>
+                    </div>
+
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <a class="flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:text-white" onclick="copyText()" >
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.1543 1C4.1543 0.447715 4.60201 0 5.1543 0H17.6163C18.2486 0 18.855 0.251171 19.302 0.698257C19.7491 1.14534 20.0003 1.75172 20.0003 2.384V14.846C20.0003 15.3983 19.5526 15.846 19.0003 15.846C18.448 15.846 18.0003 15.3983 18.0003 14.846V2.384C18.0003 2.28216 17.9598 2.18449 17.8878 2.11247C17.8158 2.04046 17.7181 2 17.6163 2H5.1543C4.60201 2 4.1543 1.55228 4.1543 1Z" fill="currentColor"></path>
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 5C0 4.44772 0.447715 4 1 4H15C15.5523 4 16 4.44772 16 5V19C16 19.5523 15.5523 20 15 20H1C0.447715 20 0 19.5523 0 19V5ZM2 6V18H14V6H2Z" fill="currentColor"></path>
+                                    </svg>
+                                    Copy link
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <div class="card bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 p-4 m-4 w-full aspect-ratio-4/3">
+                    <div class="flex justify-between items-center p-4">
+                        <div class="flex-1">
+                            <h5 class="text-2xl font-bold text-gray-900 dark:text-white">CSSU TA Event</h5>
+                            <p class="text-gray-500 dark:text-gray-400">Friday, Feb. 23rd, 2024, 2:00-4:00 PM</p>
+                            <span class="inline-flex items-center bg-green-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mt-4">
+                                <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+                                Responded
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-8 pb-0 border-gray-200 dark:border-gray-700">
+                        <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">Accept</a>
+                    </div>
+
+                    <div class="p-4 border-gray-200 dark:border-gray-700">
+                        <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">Decline</a>
+                    </div>
+
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <a class="flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:text-white" onclick="copyText()" >
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.1543 1C4.1543 0.447715 4.60201 0 5.1543 0H17.6163C18.2486 0 18.855 0.251171 19.302 0.698257C19.7491 1.14534 20.0003 1.75172 20.0003 2.384V14.846C20.0003 15.3983 19.5526 15.846 19.0003 15.846C18.448 15.846 18.0003 15.3983 18.0003 14.846V2.384C18.0003 2.28216 17.9598 2.18449 17.8878 2.11247C17.8158 2.04046 17.7181 2 17.6163 2H5.1543C4.60201 2 4.1543 1.55228 4.1543 1Z" fill="currentColor"></path>
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 5C0 4.44772 0.447715 4 1 4H15C15.5523 4 16 4.44772 16 5V19C16 19.5523 15.5523 20 15 20H1C0.447715 20 0 19.5523 0 19V5ZM2 6V18H14V6H2Z" fill="currentColor"></path>
+                                    </svg>
+                                    Copy link
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 p-4 m-4 w-full aspect-ratio-4/3">
+                    <div class="flex justify-between items-center p-4">
+                        <div class="flex-1">
+                            <h5 class="text-2xl font-bold text-gray-900 dark:text-white">Smash Bros. Tournament</h5>
+                            <p class="text-gray-500 dark:text-gray-400">Saturday, Feb. 24th, 2024, 11:00AM-1:00PM</p>
+                            <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mt-4">
+                                <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+                                Not Responded
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-8 pb-0 border-gray-200 dark:border-gray-700">
+                        <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">Edit Availability</a>                
+                    </div>
+
+                    <div class="p-4 border-gray-200 dark:border-gray-700">
+                        <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">Decline</a>
+                    </div>
+
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <a class="flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:text-white" onclick="copyText()" >
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.1543 1C4.1543 0.447715 4.60201 0 5.1543 0H17.6163C18.2486 0 18.855 0.251171 19.302 0.698257C19.7491 1.14534 20.0003 1.75172 20.0003 2.384V14.846C20.0003 15.3983 19.5526 15.846 19.0003 15.846C18.448 15.846 18.0003 15.3983 18.0003 14.846V2.384C18.0003 2.28216 17.9598 2.18449 17.8878 2.11247C17.8158 2.04046 17.7181 2 17.6163 2H5.1543C4.60201 2 4.1543 1.55228 4.1543 1Z" fill="currentColor"></path>
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 5C0 4.44772 0.447715 4 1 4H15C15.5523 4 16 4.44772 16 5V19C16 19.5523 15.5523 20 15 20H1C0.447715 20 0 19.5523 0 19V5ZM2 6V18H14V6H2Z" fill="currentColor"></path>
+                                    </svg>
+                                    Copy link
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+
+            </div>
+        </div>
+        </main>
+        
+
+        <footer class="bg-white rounded-lg dark:bg-gray-900 p-8 sm:ml-64">
+            <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+                <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+                <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="#" class="hover:underline">1on1™</a>. All Rights Reserved.</span>
+            </div>
+        </footer>
+
+
+        </body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+        <script>
+            function copyText() {
+
+                navigator.clipboard.writeText
+                    ("Sample link");
+            }
+        </script>
+    </html>
