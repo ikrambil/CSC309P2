@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'calendars',
     'contacts',
     'accounts',
-
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -73,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'OneOnOne.urls'
@@ -157,3 +158,7 @@ else:
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Allow requests from external origins
+CORS_ALLOW_ALL_ORIGINS = True
+
