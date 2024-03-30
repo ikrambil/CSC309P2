@@ -9,6 +9,8 @@ from rest_framework.generics import RetrieveAPIView
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.db.models import Prefetch
 
 from accounts.models import Contact
 from .models import Calendar, Invitation
@@ -58,6 +60,20 @@ class CalendarDetailView(RetrieveAPIView):
     def get_queryset(self):
         return Calendar.objects.filter(owner=self.request.user)
 
+class UserCalendarsView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Prefetch invitations to optimize database queries
+        invitations = Invitation.objects.all()
+        calendars = Calendar.objects.filter(owner=user).prefetch_related(Prefetch('invitations', queryset=invitations))
+        serializer = CalendarDetailSerializer(calendars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 class CalendarUpdateAvailabilityView(APIView):
     permission_classes = [IsAuthenticated]
 

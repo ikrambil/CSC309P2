@@ -69,15 +69,11 @@ class LogoutView(APIView):
             return Response({'detail': 'Logout failed', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ContactView(APIView):
-
     def get(self, request):
-        contacts = Contact.objects.filter(owner=request.user).values()
-        newContacts = []
-        for x in contacts:
-            new = dict(list(x.items())[-2:])
-            newContacts.append(new)
-
-        return Response({"contacts": newContacts})
+        # Assuming you're filtering by the authenticated user
+        user_contacts = Contact.objects.filter(owner=request.user)
+        serializer = ContactSerializer(user_contacts, many=True)
+        return Response(serializer.data)
 
 
 class AddContactView(generics.UpdateAPIView):

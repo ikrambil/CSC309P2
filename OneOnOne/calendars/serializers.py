@@ -70,10 +70,21 @@ class CalendarDetailSerializer(serializers.ModelSerializer):
     owner_username = serializers.ReadOnlyField(source='owner.username')
     invitations = InvitationDetailSerializer(many=True, read_only=True)
     availability = serializers.SerializerMethodField()
+    pendingInvitationsCount = serializers.SerializerMethodField()
+    acceptedInvitationsCount = serializers.SerializerMethodField()
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations', 'finalized', 'finalized_schedule']
+        fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations', 'finalized', 'finalized_schedule', 'pendingInvitationsCount', 
+            'acceptedInvitationsCount']
+
+    
+    def get_pendingInvitationsCount(self, obj):
+        return obj.get_pending_invitations_count()
+
+    def get_acceptedInvitationsCount(self, obj):
+        return obj.get_accepted_invitations_count()
+    
 
     def get_availability(self, obj):
         # Assuming availability is stored as a JSON string in the database

@@ -54,3 +54,8 @@ class DeleteContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ('contact_email',)
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'email']

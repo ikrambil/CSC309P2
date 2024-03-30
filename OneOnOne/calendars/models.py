@@ -13,6 +13,12 @@ class Calendar(models.Model):
     finalized = models.BooleanField(default=False)
     finalized_schedule = models.TextField(default='[]', blank=True, null=True) # Stores the finalized schedule as serialized JSON string
 
+    def get_pending_invitations_count(self):
+        return int(self.invitations.filter(status='Pending').count())
+
+    def get_accepted_invitations_count(self):
+        return int(self.invitations.filter(status='Accepted').count())
+
     def save(self, *args, **kwargs):
         if isinstance(self.participants, list):  # Check if participants is already a list
             self.participants = json.dumps(self.participants, cls=DjangoJSONEncoder)
