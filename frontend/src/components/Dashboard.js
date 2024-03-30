@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 import CalendarCard from './CalendarCard';
 import Sidebar from './Sidebar';
@@ -8,18 +9,30 @@ import Footer from './Footer';
 
 const Dashboard = () => {
   const [calendars, setCalendars] = useState([]);
-  const { userId } = useParams(); 
+  const { userId } = useParams();
+  const { accessToken } = useAuth();
+
 
   useEffect(() => {
     const fetchCalendars = async () => {
+      const url = 'http://localhost:8000/calendars/all/';
       try {
-        // Update the URL to match your API endpoint
-        const response = await axios.get(`http://localhost:8000/calendars/all/${userId}/`);
-        setCalendars(response.data);
+          const response = await fetch(url, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+              },
+          });
+
+          if (!response.ok) throw new Error('Network response was not ok');
+          const data = await response.json();
+          setCalendars(data);
       } catch (error) {
-        console.error("Error fetching calendars", error);
+          console.error('Error fetching Calendars:', error);
+          // Handle error
       }
-    };
+  };
 
     fetchCalendars();
   }, []);

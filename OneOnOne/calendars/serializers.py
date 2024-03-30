@@ -75,7 +75,7 @@ class CalendarDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner_username', 'availability', 'invitations', 'finalized', 'finalized_schedule', 'pendingInvitationsCount', 
+        fields = ['id', 'name', 'description', 'owner_username', 'participants', 'availability', 'invitations', 'finalized', 'finalized_schedule', 'pendingInvitationsCount', 
             'acceptedInvitationsCount']
 
     

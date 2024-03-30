@@ -1,5 +1,5 @@
+import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useCallback }  from 'react';
-import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ContactDropdown from './ContactDropdown';
@@ -7,11 +7,11 @@ import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 
-
-
-const CreateCalendar = () => {
+const EditCalendar = () => {
+  let { calendarId } = useParams(); // Assuming you're using React Router and have a route like /edit-calendar/:id
   let navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken } = useAuth(); // Assuming you're managing auth context similarly
+
   // State for the form fields
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');
@@ -20,6 +20,8 @@ const CreateCalendar = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // New state to manage submit button
 
   const [contacts, setContacts] = useState([]); // Add this line
+
+  let calendar;
   
   useEffect(() => {
     // Check if at least one toggle is selected
@@ -32,34 +34,10 @@ const CreateCalendar = () => {
 
   // Adjust useEffect to consider both dates and contacts for disabling submit
   useEffect(() => {
-    const isAnyDateActive = Object.values(selectedDates).some(date => date.active);
+    const isAnyDateActive = true;
     const isAnyContactSelected = selectedContacts.length > 0;
     setIsSubmitDisabled(!(isAnyDateActive && isAnyContactSelected));
   }, [selectedDates, selectedContacts]);
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-        const url = 'http://localhost:8000/accounts/profile/contacts/';
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            setContacts(data); // Assume data is the array of contacts
-        } catch (error) {
-            console.error('Error fetching contacts:', error);
-            // Handle error
-        }
-    };
-
-    fetchContacts();
-}, []);
 
 const handleSelectedContactsChange = (selectedIds) => {
     setSelectedContacts(selectedIds);
@@ -69,34 +47,92 @@ const handleSelectedDatesChange = useCallback((updatedSelectedDates) => {
   setSelectedDates(updatedSelectedDates);
 }, []);
 
-  // Utility function to merge overlapping intervals
-const mergeIntervals = (intervals) => {
-  if (!intervals.length) return [];
-  intervals.sort((a, b) => a.startTime - b.startTime);
-  const merged = [intervals[0]];
-  for (let i = 1; i < intervals.length; i++) {
-      const lastMerged = merged[merged.length - 1];
-      if (intervals[i].startTime <= lastMerged.endTime) {
-          lastMerged.endTime = new Date(Math.max(lastMerged.endTime, intervals[i].endTime));
-      } else {
-          merged.push(intervals[i]);
+useEffect(() => {
+    const fetchContacts = async () => {
+      const url = 'http://localhost:8000/accounts/profile/contacts/';
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+  
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setContacts(data); // Assume data is the array of contacts
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+        // Handle error
       }
-  }
-  return merged.map(({ startTime, endTime }) => ({
-      start_time: formatISO(startTime),
-      end_time: formatISO(endTime),
-  }));
-};
+    };
+  
+    fetchContacts();
+  }, [accessToken]); // accessToken as a dependency
+  
+  // Fetch calendar data and set selected contacts
+  useEffect(() => {
+    if (contacts.length > 0) { // Ensures contacts are loaded
+      const fetchCalendarData = async () => {
+        const url = `http://localhost:8000/calendars/${calendarId}/`;
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          if (!response.ok) throw new Error('Network response was not ok');
+          const calendarData = await response.json();
+  
+          // Populate form states with fetched data
+          setCalendarName(calendarData.name);
+          setDescription(calendarData.description);
+          calendar = calendarData.availability;
+  
+          // Loop through participants and enable contacts that are in the participants field
+          const participantEmails = calendarData.participants; // Assuming this is an array of emails
+          const participantIds = contacts.filter(contact => participantEmails.includes(contact.email)).map(contact => contact.id);
+          setSelectedContacts(participantIds);
 
-// Adjusted handleSubmit to use form states directly
-const handleSubmit = async (e) => {
-  e.preventDefault(); // Prevent default form submission behavior
+          const transformedAvailability = calendarData.availability.reduce((acc, curr) => {
+            const dateKey = curr.start_time.split('T')[0]; // Extract date part from start_time
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                active: true,
+                timeRanges: [],
+              };
+            }
+            acc[dateKey].timeRanges.push({
+              startTime: parseISO(curr.start_time),
+              endTime: parseISO(curr.end_time),
+            });
+            return acc;
+          }, {});
+  
+          setSelectedDates(transformedAvailability);
+        } catch (error) {
+          console.error('Error fetching calendar data:', error);
+        }
+      };
+  
+      fetchCalendarData();
+    }
+  }, [contacts, calendarId, accessToken]);
+  console.log(selectedContacts);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let availability;
+    // Check if any date is active, implying the user has set new availability
+    const isAnyDateActive = Object.values(selectedDates).some(date => date.active);
+    const participants = selectedContacts.map(contactId => 
+        contacts.find(contact => contact.id === contactId)?.email);
 
-  // Serialize participants using their emails
-  const participants = selectedContacts.map(contactId => 
-      contacts.find(contact => contact.id === contactId)?.email);
-
-      const availability = Object.entries(selectedDates)
+    if (isAnyDateActive) {
+        // Transform selectedDates into your API's expected format for availability
+      availability = Object.entries(selectedDates)
       .filter(([_, value]) => value.active) // Filter for active dates
       .flatMap(([date, value]) => {
           if (Array.isArray(value.timeRanges)) {
@@ -122,39 +158,21 @@ const handleSubmit = async (e) => {
           }
           return [];
       });
-
-  const formData = {
-    name: calendarName,
-    description,
-  };
-
-  const requestData = JSON.stringify({
-    ...formData,
-    participants: participants, // Use the directly prepared data
-    availability: JSON.stringify(availability), // Use the directly prepared data
-  });
-  console.log(requestData)
-  try {
-    const response = await fetch('http://localhost:8000/calendars/create/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-        body: requestData,
-    });
-
-    if (!response.ok) {
-        throw new Error('Network response was not ok.');
     }
-
-    // Handle successful submission
-    console.log('Calendar created successfully.');
-    navigate('/dashboard/')
-  } catch (error) {
-    console.error('Failed to create calendar:', error);
-    // Handle errors, such as by showing an error message to the user
-  }
+    else{
+        availability = calendar.availability
+    }
+    const formData = {
+        name: calendarName,
+        description,
+      };
+    
+      const requestData = JSON.stringify({
+        ...formData,
+        participants: participants, // Use the directly prepared data
+        availability: JSON.stringify(availability), // Use the directly prepared data
+      });
+      console.log(requestData)
   };
 
   return (
@@ -188,14 +206,14 @@ const handleSubmit = async (e) => {
             }
         </div>
         <div className="mb-6">
-            <p className="text-sm font-medium text-gray-900">Availability:</p>
+            <p className="text-sm font-medium text-gray-900">Availability (Enter your new availability, leave blank if there are no changes):</p>
             <AvailabilityPicker setSelectedDates={handleSelectedDatesChange} />
             {isSubmitDisabled && (
           <div className=" w-full text-center text-sm font-medium text-bold text-red-700 bg-red-300 rounded-lg">Please select at least one date.</div>
         )}
         </div>
       </div>
-      <button disabled={isSubmitDisabled} type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit!</button>
+      <button disabled={isSubmitDisabled} type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Edit!</button>
     </form>
     </div>
     <Footer/>
@@ -203,4 +221,4 @@ const handleSubmit = async (e) => {
     );
 };
 
-export default CreateCalendar;
+export default EditCalendar;

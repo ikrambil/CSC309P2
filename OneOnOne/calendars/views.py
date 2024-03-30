@@ -61,16 +61,15 @@ class CalendarDetailView(RetrieveAPIView):
         return Calendar.objects.filter(owner=self.request.user)
 
 class UserCalendarsView(APIView):
-    permission_classes = [AllowAny]
-    def get(self, request, user_id):
-        try:
-            user = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
 
         # Prefetch invitations to optimize database queries
         invitations = Invitation.objects.all()
-        calendars = Calendar.objects.filter(owner=user).prefetch_related(Prefetch('invitations', queryset=invitations))
+        calendars = Calendar.objects.filter(owner=user).prefetch_related(
+            Prefetch('invitations', queryset=invitations)
+        )
         serializer = CalendarDetailSerializer(calendars, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
