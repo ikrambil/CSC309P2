@@ -4,11 +4,12 @@ import Footer from './Footer';
 import ContactDropdown from './ContactDropdown';
 import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../context/AuthContext';
 
-const { accessToken } = useAuth();
+
 
 const CreateCalendar = () => {
+  const { accessToken } = useAuth();
   // State for the form fields
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');

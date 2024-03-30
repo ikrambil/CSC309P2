@@ -7,10 +7,12 @@ import SignUp from './components/Signup';
 import './styles.css';
 import './App.css';
 import 'flowbite';
+import FinalizedCalendar from './components/FinalizedCalendar';
+import CalendarRecommendation from './components/CalendarRecommendation';
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.js';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           {/* <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} /> */}
           <Route path="/dashboard/:userId" element={<Dashboard />} />
           <Route path="/create-calendar" element={<CreateCalendar />} />
+          <Route path="/finalizedCalendar" element={<FinalizedCalendar />} />
+          <Route path='/recommendedCalendars' element={<CalendarRecommendation />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
