@@ -15,6 +15,13 @@ from .models import Contact
 
 User = get_user_model()
 
+class RootAPIView(APIView):
+    def get(self):
+        content = {
+            'message': 'The REST API is live!',
+        }
+        return Response(content, status=status.HTTP_200_OK)
+
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
