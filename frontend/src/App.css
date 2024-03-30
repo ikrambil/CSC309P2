@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 .App {
-  text-align: center;
+  text-align: left;
 }
 
 .App-logo {
@@ -35,4 +36,40 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+*{
+  font-family: 'Raleway', sans-serif;
+}
+
+.card{
+  border-bottom: 8px solid #ffbcd9 !important;
+  transition: transform 0.3s;
+}
+
+
+/* In your main CSS file (e.g., App.css) */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Use the full height of the viewport */
+}
+
+.content {
+  flex: 1; /* Causes the content area to expand and push the footer down */
+}
+
+.container {
+  position: relative; /* Set the parent container to position relative */
+  height: 100%; /* Ensure it takes the full height */
+  display: block;
+}
+
+.contentz {
+  position: absolute; /* Position content container absolutely to anchor its bottom */
+  top: 0; /* Anchor the bottom edge */
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center items horizontally */
+  transition: all 0.3s ease; /* Optional: for smooth expansion */
 }
