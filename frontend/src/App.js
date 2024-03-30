@@ -9,8 +9,12 @@ import EditCalendar from './components/EditCalendar';
 import './styles.css';
 import './App.css';
 import 'flowbite';
+import FinalizedCalendar from './components/FinalizedCalendar';
+import CalendarRecommendation from './components/CalendarRecommendation';
+
+
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.js';
 
 function App() {
   return (
@@ -24,6 +28,8 @@ function App() {
           <Route path="/create-calendar" element={<CreateCalendar />} />
           <Route path="/view-calendar/:calendarId" element={<ViewCalendar />} />
           <Route path="/edit-calendar/:calendarId" element={<EditCalendar />} />
+          <Route path="/finalizedCalendar" element={<FinalizedCalendar />} />
+          <Route path='/recommendedCalendars' element={<CalendarRecommendation />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
