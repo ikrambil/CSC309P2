@@ -32,8 +32,8 @@ function App() {
           <Route path="/create-calendar" element={<ProtectedRoute><CreateCalendar /></ProtectedRoute>} />
           <Route path="/view-calendar/:calendarId" element={<ProtectedRoute><ViewCalendar /></ProtectedRoute>} />
           <Route path="/edit-calendar/:calendarId" element={<ProtectedRoute><EditCalendar /></ProtectedRoute>} />
-          <Route path="/edit-invite/:token" element={<ProtectedRoute><AddInvite /></ProtectedRoute>} />
-          <Route path="/view-invite/:token" element={<ProtectedRoute><ViewInvite /></ProtectedRoute>} />
+          <Route path="/edit-invite/:token" element={<AddInvite />} />
+          <Route path="/view-invite/:token" element={<ViewInvite />} />
           <Route path="/finalizedCalendar/:calendarId" element={<ProtectedRoute><FinalizedCalendar /></ProtectedRoute>} />
           <Route path='/recommendedCalendars/:calendarId' element={<ProtectedRoute><CalendarRecommendation /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
