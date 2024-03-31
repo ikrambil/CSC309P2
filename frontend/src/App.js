@@ -6,6 +6,8 @@ import Login from './components/Login';
 import ViewCalendar from './components/ViewCalendar';
 import SignUp from './components/Signup';
 import EditCalendar from './components/EditCalendar';
+import AddInvite from './components/AddInvitation.js';
+import ViewInvite from './components/ViewInvitation.js';
 import './styles.css';
 import './App.css';
 import 'flowbite';
@@ -24,10 +26,12 @@ function App() {
         <Routes>
           {/*  put an example below for how to protect route using helper component. Use it for future routes! */}
           {/* <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} /> */}
-          <Route path="/dashboard/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-calendar" element={<CreateCalendar />} />
           <Route path="/view-calendar/:calendarId" element={<ViewCalendar />} />
           <Route path="/edit-calendar/:calendarId" element={<EditCalendar />} />
+          <Route path="/edit-invite/:token" element={<AddInvite />} />
+          <Route path="/view-invite/:token" element={<ViewInvite />} />
           <Route path="/finalizedCalendar" element={<FinalizedCalendar />} />
           <Route path='/recommendedCalendars' element={<CalendarRecommendation />} />
           <Route path="/login" element={<Login />} />

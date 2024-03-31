@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 const EditCalendar = () => {
   let { calendarId } = useParams(); // Assuming you're using React Router and have a route like /edit-calendar/:id
   let navigate = useNavigate();
-  const { accessToken } = useAuth(); // Assuming you're managing auth context similarly
+  const { accessToken } = useAuth(); 
 
   // State for the form fields
   const [calendarName, setCalendarName] = useState('');
@@ -71,7 +71,7 @@ useEffect(() => {
     fetchContacts();
   }, [accessToken]); // accessToken as a dependency
   
-  // Fetch calendar data and set selected contacts
+  // Fetch Invitation Information
   useEffect(() => {
     if (contacts.length > 0) { // Ensures contacts are loaded
       const fetchCalendarData = async () => {
@@ -166,21 +166,43 @@ useEffect(() => {
         name: calendarName,
         description,
       };
-    
       const requestData = JSON.stringify({
         ...formData,
         participants: participants, // Use the directly prepared data
         availability: JSON.stringify(availability), // Use the directly prepared data
       });
-      console.log(requestData)
-  };
+      console.log(requestData);
+    
+      try {
+        const url = `http://localhost:8000/calendars/${calendarId}/update-availability/`;
+        const response = await fetch(url, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          body: requestData,
+        });
+    
+        if (!response.ok) {
+          // Handle the error according to your application's needs
+          throw new Error('Failed to update calendar');
+        }
+        const updatedCalendar = await response.json();
+        console.log('Calendar updated successfully:', updatedCalendar);
+        // Redirect or perform any follow-up actions as needed
+        navigate(`/view-calendar/${calendarId}`); // Adjust the redirect path as necessary
+      } catch (error) {
+        console.error('Error updating calendar:', error);
+      }
+    };
 
   return (
     <>
     <Sidebar/>
     <div className='p-8 sm:ml-64'>
       <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
-        <h1 className="text-2xl md:text-4xl">Create Your Calendar:</h1>
+        <h1 className="text-2xl md:text-4xl">Edit Your Calendar:</h1>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
       <div className='w-1/2'>

@@ -4,6 +4,10 @@ import {Link } from 'react-router-dom';
 
 const CalendarCard = ({ title, id, description, link, pending, accepted, finalized }) => {
     const totalInvitations = parseInt(pending, 10) + parseInt(accepted, 10);
+    const maxLength = 100; // Maximum length of the description
+
+    // Truncate description if it exceeds maxLength
+    const truncatedDescription = description.length > maxLength ? `${description.substring(0, maxLength)}...` : description;
 
   // Determine the status and styling based on responses and whether it's finalized
   let statusText, statusStyle, statusIndicatorColor;
@@ -26,7 +30,7 @@ const CalendarCard = ({ title, id, description, link, pending, accepted, finaliz
       <div className="flex justify-between items-left p-4">
         <div className="flex-1">
           <h5 className="text-2xl font-bold text-gray-900">{title}</h5>
-          <p className="text-gray-500 text-xl py-2">{description}</p>
+          <p className="text-gray-500 text-xl py-2">{truncatedDescription}</p>
           <p className="text-gray-500 py-2">{parseInt(accepted, 10)}/{totalInvitations} invitations accepted</p>
           <span className={`inline-flex items-center ${statusStyle} text-xs font-medium px-2.5 py-0.5 rounded-full mt-4`}>
             <span className={`w-2 h-2 me-1 ${statusIndicatorColor} rounded-full`}></span>

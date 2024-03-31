@@ -37,7 +37,7 @@ class CalendarCreateView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             for email in participant_emails:
                 invitation = Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
-                availability_url = request.build_absolute_uri(reverse('update-invitation', kwargs={'token': invitation.token}))
+                availability_url = f'http://localhost:3000/edit-invite/{invitation.token}'
                 
                 # Send an email to the participant
                 send_mail(
@@ -55,10 +55,10 @@ class CalendarCreateView(APIView):
 class CalendarDetailView(RetrieveAPIView):
     queryset = Calendar.objects.all()
     serializer_class = CalendarDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        return Calendar.objects.filter(owner=self.request.user)
+    #def get_queryset(self):
+     #   return Calendar.objects.filter(owner=self.request.user)
 
 class UserCalendarsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -78,13 +78,26 @@ class CalendarUpdateAvailabilityView(APIView):
 
     def patch(self, request, pk, *args, **kwargs):
         calendar = get_object_or_404(Calendar, pk=pk, owner=request.user)  # Ensure the user owns the calendar
-        # Load the current availability data and update it with the new data provided in the request
+
+        # Load the current calendar data and update it with the new data provided in the request
+        name = request.data.get('name')
+        description = request.data.get('description')
+        participants = request.data.get('participants')
         new_availability = request.data.get('availability')
+
         if new_availability is None:
             return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Assuming the availability data is sent as a serialized JSON string and the Calendar model
-        # expects it in the same format. Validate the data as necessary before saving.
+        # Update the calendar fields if provided
+        if name is not None:
+            calendar.name = name
+        if description is not None:
+            calendar.description = description
+        if participants is not None:
+            # Assuming participants is a list of email addresses and stored as a JSON string in the model
+            # Validate and serialize the list as necessary before saving
+            calendar.participants = participants
+        
         calendar.availability = new_availability
         calendar.save()
 
