@@ -65,7 +65,7 @@ function SignUp() {
     try {
       // Make the POST request to API
       const response = await fetch(
-        "http://127.0.0.1:8000/accounts/register/",
+        "http://https://csc309p2.onrender.com/accounts/register/",
         {
           method: "POST",
           headers: {
