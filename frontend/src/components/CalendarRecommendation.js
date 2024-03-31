@@ -44,6 +44,8 @@ const CalendarRecommendation = () => {
         fetchCalendarDetails();
     }, [calendarId, accessToken, navigate]);
 
+    console.log(calendar);
+
     useEffect(() => {
         
         const fetchCalendarDetails = async () => {
@@ -123,12 +125,16 @@ const CalendarRecommendation = () => {
 
                 {/* Syncfusion Scheduler */}
                 {selectedOption && (
-                    <ScheduleComponent eventSettings={{ dataSource: selectedOption[0].meeting_times.map((dateTimeString, index) => ({
-                        Id: index + 1,
-                        Subject: selectedOption[0].invitee,
-                        StartTime: new Date(dateTimeString),
-                        EndTime: new Date(selectedOption[0].meeting_times[index + 1])
-                    })) }} currentView='Month'
+                    <ScheduleComponent eventSettings={{
+                        dataSource: selectedOption.flatMap((event, eventIndex) => (
+                            event.meeting_times.map((slot, index) => ({
+                                Id: `${eventIndex}-${index + 1}`,
+                                Subject: event.invitee,
+                                StartTime: new Date(slot),
+                                EndTime: new Date(event.meeting_times[index + 1]) // Assuming meeting_times is always in pairs
+                            }))
+                        ))
+                    }} currentView='Month'
                     readonly={true}>
                         <ViewsDirective>
                             <ViewDirective option="Day" />
