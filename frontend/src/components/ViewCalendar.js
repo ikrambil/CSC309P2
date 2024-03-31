@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
+import { ScheduleComponent, Inject, ViewsDirective, ViewDirective, Day, Week, Year, Month, Agenda } from '@syncfusion/ej2-react-schedule';
+import { registerLicense } from '@syncfusion/ej2-base';
+
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxdcHRWRWBZUkR1WkA=');
 
 
 const ViewCalendar = () => {
@@ -72,6 +76,15 @@ const ViewCalendar = () => {
         }
       };
 
+      const events = (calendar.availability || []).map((slot, index) => {
+        return {
+            Id: index + 1, // Assigning unique IDs to each event
+            Subject: 'Availability', // You can customize the subject if needed
+            StartTime: new Date(slot.start_time),
+            EndTime: new Date(slot.end_time)
+        };
+    });
+
   return (
     <>
       <Sidebar />
@@ -96,15 +109,23 @@ const ViewCalendar = () => {
             <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
                 <h1 className="text-xl md:text-2xl">Availability:</h1>
             </div>
-            <div>
-                {(calendar.availability || []).map((slot, index) => (
-                    <div key={index} className="px-8 text-sm text-xl text-gray-900 mb-2">
-                        <div>Start: {new Date(slot.start_time).toLocaleString()}</div>
-                        <div>End: {new Date(slot.end_time).toLocaleString()}</div>
-                    </div>
-                ))}
-            </div>
-        </div>
+          </div>
+            <ScheduleComponent eventSettings={{ 
+              dataSource: events 
+              }} 
+              currentView='Month'
+              readonly={true}
+              >
+              <ViewsDirective>
+                  <ViewDirective option="Day" />
+                  <ViewDirective option="Week" />
+                  <ViewDirective option="Month" />
+                  <ViewDirective option="Year" />
+                  <ViewDirective option="Agenda" />
+              </ViewsDirective>
+              <Inject services={[Day, Week, Month, Year, Agenda]} />
+            </ScheduleComponent>
+        
         <div className="mb-6">
             <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center text-center">
                 <h1 className="text-xl md:text-2xl text-center">Invitations:</h1>
