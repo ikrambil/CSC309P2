@@ -9,28 +9,32 @@ import { registerLicense } from '@syncfusion/ej2-base';
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxdcHRWRWBZUkR1WkA=');
 
-function FinalizedCalendar() {
+const FinalizedCalendar = () => {
 
     const { accessToken } = useAuth();
     let navigate = useNavigate();
     let { calendarId } = useParams();
     const [calendar, setCalendar] = useState(null);
 
-    useEffect(() => {
-        const fetchCalendarDetails = async () => {
-            const url = `http://localhost:8000/calendars/${calendarId}/`;
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
+    console.log("CalendarId: ", calendarId);
 
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                setCalendar(data);
+    useEffect(() => {
+        // Placeholder for API call to fetch calendar details
+        const fetchCalendarDetails = async () => {
+        const url = `http://localhost:8000/calendars/${calendarId}/`;
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+    
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            setCalendar(data)
+            
             } catch (error) {
                 console.error('No Calendar exists', error);
                 navigate('/dashboard/');
@@ -38,43 +42,72 @@ function FinalizedCalendar() {
         };
 
         fetchCalendarDetails();
-    }, [calendarId, accessToken, navigate]);
+    }, [calendarId]);
 
-    
+    if (!calendar) {
+        return <div>Loading...</div>;
+        }
 
+    console.log("Calendar info: ", calendar);
+    console.log("final: ", typeof calendar.finalized_schedule);
 
-    const location = useLocation();
-    const data = location.state ? location.state.data : [];
+    const finalizedString = calendar.finalized_schedule.replace(/'/g, '"');
+    console.log("Finalized String: ",finalizedString);
+
+    const finalizedSchedule = JSON.parse(finalizedString);
+
+    console.log("Finalized Info: ", finalizedSchedule);
+    console.log("Final type: ", typeof finalizedSchedule);
+;
 
   return (
     <>
-    <Sidebar/>
-        <div className='p-8 sm:ml-64'>
-            <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
-                <h1 className="text-2xl md:text-4xl">Calendar Name</h1>
-                <span class="inline-flex align-middle items-center bg-green-100 text-green-800 text-xs font-medium ml-2.5 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
-                <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
-                Finalized
-                </span>
-            </div>
-            <ScheduleComponent eventSettings={{
-                dataSource: data, 
-            }}
-            // selectedDate={'date'}  --> This is for if we don't want the calendar to open on today's date
-            currentView='Month'
-            >
-                <ViewsDirective>
-                    <ViewDirective option="Day" />
-                    <ViewDirective option="Week" />
-                    <ViewDirective option="Month" />
-                    <ViewDirective option="Year" />
-                    <ViewDirective option="Agenda" />
-                </ViewsDirective>
-
-                <Inject services={[Day, Week, Month, Year, Agenda]} />
-
-            </ScheduleComponent>
+    <Sidebar />
+      <div className='p-8 sm:ml-64'>
+        <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
+            <h1 className="text-2xl md:text-4xl">Finalized Calendar:</h1>
         </div>
+        <div className='flex flex-col items-center'>
+            <div className="mb-6">
+                <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                    <h1 className="text-xl md:text-2xl">Name:</h1>
+                </div>
+                <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.name} </div>
+            </div>
+            <div className="mb-6">
+                <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                    <h1 className="text-xl md:text-2xl">Description:</h1>
+                </div>
+                <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.description} </div>
+            </div>
+            <div className='flex flex-col items-center'>
+            <ScheduleComponent
+                eventSettings={{
+                    dataSource: finalizedSchedule.flatMap((event, eventIndex) =>
+                        event.meeting_times.map((slot, index) => ({
+                            Id: `${eventIndex}-${index + 1}`,
+                            Subject: event.invitee,
+                            StartTime: new Date(slot),
+                            EndTime: new Date(event.meeting_times[index + 1]),
+                        }))
+                    ).reduce((acc, val) => acc.concat(val), []),
+                }}
+                currentView='Month'
+                readonly={true}
+            >
+                    <ViewsDirective>
+                        <ViewDirective option="Day" />
+                        <ViewDirective option="Week" />
+                        <ViewDirective option="Month" />
+                        <ViewDirective option="Year" />
+                        <ViewDirective option="Agenda" />
+                    </ViewsDirective>
+                    <Inject services={[Day, Week, Month, Year, Agenda]} />
+                </ScheduleComponent>
+                        
+            </div>
+        </div>
+    </div>
     <Footer />
     </>
     );

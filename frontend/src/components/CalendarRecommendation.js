@@ -85,13 +85,30 @@ const CalendarRecommendation = () => {
     console.log(calendar2);
     console.log(calendar3);
     console.log(selectedOption);
+
+    const finalizeCalendar = async (calendarId, accessToken, selectedOption, navigate) => {
+        const url = `http://localhost:8000/calendars/${calendarId}/finalize/`;
+        const requestdata = JSON.stringify({ selectedOption });
+        console.log("Request Data: ", requestdata)
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({ finalized_schedule: selectedOption }),
+            });
     
-
-    const finalizeCalendar = () => {
-        // Assuming you have a route for finalizing calendar
-        navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption[0] } });
+            if (!response.ok) throw new Error('Network response was not ok');
+            // Assuming successful finalization
+            navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
+        } catch (error) {
+            console.error('Error finalizing calendar', error);
+            // Handle error accordingly
+        }
     };
-
+    
     const getButtonClass = (option) => {
         return selectedOption === option ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black';
     };
@@ -101,7 +118,7 @@ const CalendarRecommendation = () => {
         <Sidebar />
             <div className='p-8 sm:ml-64'>
                 <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
-                    <h1 className="text-2xl md:text-4xl">View Your Calendar:</h1>
+                    <h1 className="text-2xl md:text-4xl">Choose a Calendar:</h1>
                 </div>
                 <div className='flex flex-col items-center'>
                 <div className="mb-6">
@@ -147,7 +164,7 @@ const CalendarRecommendation = () => {
                     </ScheduleComponent>
                 )}
                 <div className="flex justify-center">
-                    <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={finalizeCalendar}>Finalize</button>
+                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={() => finalizeCalendar(calendarId, accessToken, selectedOption, navigate)}>Finalize</button>
                 </div>
             </div>
             </div>
