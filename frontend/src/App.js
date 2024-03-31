@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import CreateCalendar from './components/CreateCalendar';
 import Login from './components/Login';
@@ -27,6 +27,7 @@ function App() {
         <Routes>
           {/*  put an example below for how to protect route using helper component. Use it for future routes! */}
           {/* <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} /> */}
+          <Route path="/" element={<Navigate replace to="/dashboard" />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-calendar" element={<ProtectedRoute><CreateCalendar /></ProtectedRoute>} />
           <Route path="/view-calendar/:calendarId" element={<ProtectedRoute><ViewCalendar /></ProtectedRoute>} />
