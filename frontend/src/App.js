@@ -28,8 +28,8 @@ function App() {
           <Route path="/create-calendar" element={<CreateCalendar />} />
           <Route path="/view-calendar/:calendarId" element={<ViewCalendar />} />
           <Route path="/edit-calendar/:calendarId" element={<EditCalendar />} />
-          <Route path="/finalizedCalendar" element={<FinalizedCalendar />} />
-          <Route path='/recommendedCalendars' element={<CalendarRecommendation />} />
+          <Route path="/finalizedCalendar/:calendarid" element={<FinalizedCalendar />} />
+          <Route path='/recommendedCalendars/:calendarId' element={<CalendarRecommendation />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>

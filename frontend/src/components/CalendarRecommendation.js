@@ -1,113 +1,93 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import { useAuth } from '../context/AuthContext';
 import 'flowbite';
 import { ScheduleComponent, Inject, ViewsDirective, ViewDirective, Day, Week, Year, Month, Agenda } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxdcHRWRWBZUkR1WkA=');
 
-const optionsData = {
-    option1: [
-        {
-            Id: 1,
-            Subject: "Peter Parker",
-            StartTime: new Date(2024, 2, 29, 10, 0),
-            EndTime: new Date(2024, 2, 29, 11, 0),
-            IsAllDay: false,
-        },
-        {
-            Id: 2,
-            Subject: "Marry Jane Watson",
-            StartTime: new Date(2024, 2, 31, 13, 0),
-            EndTime: new Date(2024, 2, 31, 15, 30),
-            IsAllDay: false,
-        },
-        {
-            Id: 3,
-            Subject: "Norman Osborn",
-            StartTime: new Date(2024, 3, 1, 10, 0),
-            EndTime: new Date(2024, 3, 1, 11, 0),
-            IsAllDay: false,
-        },
-    ],
-    option2: [
-        {
-            Id: 1,
-            Subject: "Peter Parker",
-            StartTime: new Date(2024, 2, 27, 9, 30),
-            EndTime: new Date(2024, 2, 27, 11, 0),
-            IsAllDay: false,
-        },
-        {
-            Id: 2,
-            Subject: "Marry Jane Watson",
-            StartTime: new Date(2024, 2, 31, 13, 0),
-            EndTime: new Date(2024, 2, 31, 15, 30),
-            IsAllDay: false,
-        },
-        {
-            Id: 3,
-            Subject: "Norman Osborn",
-            StartTime: new Date(2024, 2, 28, 10, 0),
-            EndTime: new Date(2024, 2, 28, 11, 0),
-            IsAllDay: false,
-        },
-    ],
-    option3: [
-        {
-            Id: 1,
-            Subject: "Peter Parker",
-            StartTime: new Date(2024, 2, 29, 10, 0),
-            EndTime: new Date(2024, 2, 29, 11, 0),
-            IsAllDay: false,
-        },
-        {
-            Id: 2,
-            Subject: "Marry Jane Watson",
-            StartTime: new Date(2024, 2, 30, 13, 0),
-            EndTime: new Date(2024, 2, 30, 15, 30),
-            IsAllDay: false,
-        },
-        {
-            Id: 3,
-            Subject: "Norman Osborn",
-            StartTime: new Date(2024, 3, 1, 10, 0),
-            EndTime: new Date(2024, 3, 1, 11, 0),
-            IsAllDay: false,
-        },
-    ],
-};
 
-function CalendarRecommendation() {
-    /*const [recommendedCalendars, setRecommendedCalendars] = useState([]);
-    const [selectedOption, setSelectedOption] = useState(0);
-    const navigate = useNavigate();
-    const calendarId = 1; // Replace this with the actual calendar ID
+const CalendarRecommendation = () => {
+    const { accessToken } = useAuth();
+    let navigate = useNavigate();
+    let { calendarId } = useParams(); // Assuming you're passing the calendar ID in the route
+    const [calendar, setCalendar] = useState(null);
+    const [calendar1, setCalendar1] = useState(null);
+    const [calendar2, setCalendar2] = useState(null);
+    const [calendar3, setCalendar3] = useState(null);
+    const [selectedOption, setSelectedOption] = useState(calendar1); // or any other default option
 
     useEffect(() => {
-        axios.get(`/calendars/${calendarId}/recommendations/`)
-            .then(response => {
-                setRecommendedCalendars(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error fetching the recommended calendars:', error);
-            });
+        const fetchCalendarDetails = async () => {
+            const url = `http://localhost:8000/calendars/${calendarId}/`;
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                setCalendar(data);
+            } catch (error) {
+                console.error('No Calendar exists', error);
+                navigate('/dashboard/');
+            }
+        };
+
+        fetchCalendarDetails();
+    }, [calendarId, accessToken, navigate]);
+
+    useEffect(() => {
+        
+        const fetchCalendarDetails = async () => {
+            const url = `http://localhost:8000/calendars/${calendarId}/recommendations/`;
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+    
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                setCalendar1(data[0]);
+                setCalendar2(data[1]);
+                setCalendar3(data[2]);
+                if (data && data.length > 0) {
+                    setSelectedOption(data[0]); // Set selectedOption to the first combination
+                }
+            } catch (error) {
+                console.error('No Calendar exists', error);
+                navigate('/dashboard/')
+            }
+        };
+    
+        fetchCalendarDetails();
     }, [calendarId]);
+    
+
+    if (!calendar1) {
+    return <div>Loading...</div>;
+    }
+
+    console.log(calendar1);
+    console.log(calendar2);
+    console.log(calendar3);
+    console.log(selectedOption);
+    
 
     const finalizeCalendar = () => {
-        if (recommendedCalendars.length > 0 && selectedOption < recommendedCalendars.length) {
-            navigate('/finalized-calendar', { state: { data: recommendedCalendars[selectedOption] } });
-        }
-    };*/
-
-    const [selectedOption, setSelectedOption] = useState('option1');
-    const navigate = useNavigate();
-
-    const finalizeCalendar = () => {
-        navigate('/finalizedCalendar', { state: { data: optionsData[selectedOption] } });
+        // Assuming you have a route for finalizing calendar
+        navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption[0] } });
     };
 
     const getButtonClass = (option) => {
@@ -116,58 +96,60 @@ function CalendarRecommendation() {
 
     return (
         <>
-            <Sidebar />
+        <Sidebar />
             <div className='p-8 sm:ml-64'>
-                <div class="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
-                <h1 className="text-2xl md:text-4xl">Calendar Name</h1>
-                    <span class="inline-flex align-middle items-center bg-yellow-100 text-yellow-800 text-xs font-medium ml-2.5 px-2.5 py-0.5 rounded-full">
-                    <span class="w-2 h-2 me-1 bg-yellow-500 rounded-full"></span>
-                    Waiting to Finalize
-                    </span>
+                <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
+                    <h1 className="text-2xl md:text-4xl">View Your Calendar:</h1>
+                </div>
+                <div className='flex flex-col items-center'>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Name:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.name} </div>
+                </div>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Description:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.description} </div>
                 </div>
                 <div className="flex justify-center mb-4">
-                    <button className={`mr-2 p-2 rounded ${getButtonClass('option1')}`} onClick={() => setSelectedOption('option1')}>Option 1</button>
-                    <button className={`mr-2 p-2 rounded ${getButtonClass('option2')}`} onClick={() => setSelectedOption('option2')}>Option 2</button>
-                    <button className={`p-2 rounded ${getButtonClass('option3')}`} onClick={() => setSelectedOption('option3')}>Option 3</button>
+                    {/* Button for each option */}
+                    <button className={`mr-2 p-2 rounded ${getButtonClass(calendar1)}`} onClick={() => setSelectedOption(calendar1)}>Option 1</button>
+                    <button className={`mr-2 p-2 rounded ${getButtonClass(calendar2)}`} onClick={() => setSelectedOption(calendar2)}>Option 2</button>
+                    <button className={`mr-2 p-2 rounded ${getButtonClass(calendar3)}`} onClick={() => setSelectedOption(calendar3)}>Option 3</button>
                 </div>
-                <ScheduleComponent eventSettings={{
-                    dataSource: optionsData[selectedOption],
-                }}
-                currentView='Month'>
-                    <ViewsDirective>
-                        <ViewDirective option="Day" />
-                        <ViewDirective option="Week" />
-                        <ViewDirective option="Month" />
-                        <ViewDirective option="Year" />
-                        <ViewDirective option="Agenda" />
-                    </ViewsDirective>
 
-                    <Inject services={[Day, Week, Month, Year, Agenda]} />
-
-                </ScheduleComponent>
+                {/* Syncfusion Scheduler */}
+                {selectedOption && (
+                    <ScheduleComponent eventSettings={{ dataSource: selectedOption[0].meeting_times.map((dateTimeString, index) => ({
+                        Id: index + 1,
+                        Subject: selectedOption[0].invitee,
+                        StartTime: new Date(dateTimeString),
+                        EndTime: new Date(selectedOption[0].meeting_times[index + 1])
+                    })) }} currentView='Month'
+                    readonly={true}>
+                        <ViewsDirective>
+                            <ViewDirective option="Day" />
+                            <ViewDirective option="Week" />
+                            <ViewDirective option="Month" />
+                            <ViewDirective option="Year" />
+                            <ViewDirective option="Agenda" />
+                        </ViewsDirective>
+                        <Inject services={[Day, Week, Month, Year, Agenda]} />
+                    </ScheduleComponent>
+                )}
                 <div className="flex justify-center">
                     <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={finalizeCalendar}>Finalize</button>
                 </div>
-
-            {/* <div className="flex justify-center mb-4">
-                {recommendedCalendars.map((option, index) => (
-                    <button
-                        key={index}
-                        className={`mr-2 p-2 rounded ${selectedOption === index ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black'}`}
-                        onClick={() => setSelectedOption(index)}
-                    >
-                        Option {index + 1}
-                    </button>
-                ))}
             </div>
-            <div className="flex justify-center">
-                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={finalizeCalendar}>Finalize</button>
-                </div> */}
-
             </div>
             <Footer />
         </>
     );
+
 }
 
 export default CalendarRecommendation;
+    

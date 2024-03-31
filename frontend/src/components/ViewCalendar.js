@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
+import 'flowbite';
 import { ScheduleComponent, Inject, ViewsDirective, ViewDirective, Day, Week, Year, Month, Agenda } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 
@@ -84,6 +85,25 @@ const ViewCalendar = () => {
             EndTime: new Date(slot.end_time)
         };
     });
+
+    const getCalendarStatusText = ({ pending, accepted, finalized }) => {
+      const totalInvitations = parseInt(pending, 10) + parseInt(accepted, 10);
+      
+      if (finalized) {
+        return 'Finalized';
+      } else if (totalInvitations === parseInt(accepted, 10)) {
+        return 'Waiting to Finalize';
+      } else {
+        return 'Waiting for Recipients';
+      }
+    };
+
+    const calendarStatusText = getCalendarStatusText({
+      pending: calendar.pendingInvitationsCount,
+      accepted: calendar.acceptedInvitationsCount,
+      finalized: calendar.finalized
+    });
+
 
   return (
     <>
@@ -167,10 +187,18 @@ const ViewCalendar = () => {
             </ul>
         </div>
         <button
-          onClick={() => navigate(`/edit-calendar/${calendarId}`)}
+          onClick={() => {
+            if (calendarStatusText === 'Finalized') {
+              navigate(`/finalizedCalendar/${calendarId}`);
+            } else if (calendarStatusText === 'Waiting to Finalize') {
+              navigate(`/recommendedCalendars/${calendarId}`);
+            } else {
+              navigate(`/edit-calendar/${calendarId}`);
+            }
+          }}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
-          Edit
+          {calendarStatusText === 'Finalized' ? 'View Calendar' : calendarStatusText === 'Waiting to Finalize' ? 'See Recommended Calendars' : 'Edit'}
         </button>
         </div>
       </div>
