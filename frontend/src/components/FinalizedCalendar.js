@@ -1,35 +1,47 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Footer from './Footer'; // Assuming you have a Footer component
+import Footer from './Footer';
+import { useAuth } from '../context/AuthContext';
 import 'flowbite';
-import { AuthProvider } from '../context/AuthContext.js';
 import { ScheduleComponent, Inject, ViewsDirective, ViewDirective, Day, Week, Year, Month, Agenda } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
+
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxdcHRWRWBZUkR1WkA=');
 
 function FinalizedCalendar() {
 
-    /*const location = useLocation();
-    const navigate = useNavigate();
-    const calendarId = 1; // Replace this with the actual calendar ID
-    const data = location.state ? location.state.data : [];
-
-    const finalizeCalendar = () => {
-        axios.post(`/calendars/${calendarId}/finalize/`, { finalized_schedule: data })
-            .then(response => {
-                console.log(response.data.message);
-                navigate('/'); // Navigate to the desired page after successful finalization
-            })
-            .catch(error => {
-                console.error('There was an error finalizing the calendar:', error);
-            });
-    };
+    const { accessToken } = useAuth();
+    let navigate = useNavigate();
+    let { calendarId } = useParams();
+    const [calendar, setCalendar] = useState(null);
 
     useEffect(() => {
-        finalizeCalendar();
-    }, []);*/
+        const fetchCalendarDetails = async () => {
+            const url = `http://localhost:8000/calendars/${calendarId}/`;
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                setCalendar(data);
+            } catch (error) {
+                console.error('No Calendar exists', error);
+                navigate('/dashboard/');
+            }
+        };
+
+        fetchCalendarDetails();
+    }, [calendarId, accessToken, navigate]);
+
+    
+
 
     const location = useLocation();
     const data = location.state ? location.state.data : [];

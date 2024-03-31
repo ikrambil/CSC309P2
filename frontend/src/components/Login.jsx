@@ -41,7 +41,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "https://csc309p2.onrender.com/accounts/login/",
+        "http://127.0.0.1:8000/accounts/login/",
         {
           method: "POST",
           headers: {
@@ -54,7 +54,7 @@ function Login() {
       const data = await response.json();
       if (response.ok) {
         login(data.access);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setApiError("Login failed, please try again.");
       }
