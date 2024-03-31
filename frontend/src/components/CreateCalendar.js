@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback }  from 'react';
-import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ContactDropdown from './ContactDropdown';
@@ -8,10 +7,9 @@ import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 
 
-
 const CreateCalendar = () => {
-  let navigate = useNavigate();
   const { accessToken } = useAuth();
+  
   // State for the form fields
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');
@@ -64,6 +62,10 @@ const CreateCalendar = () => {
 const handleSelectedContactsChange = (selectedIds) => {
     setSelectedContacts(selectedIds);
 };
+
+//useEffect(() => {
+//  updateParentSelectedDates(selectedDates);
+//}, [selectedDates, updateParentSelectedDates]);
 
 const handleSelectedDatesChange = useCallback((updatedSelectedDates) => {
   setSelectedDates(updatedSelectedDates);
@@ -123,11 +125,13 @@ const handleSubmit = async (e) => {
           return [];
       });
 
+  // Prepare the form data as before
   const formData = {
     name: calendarName,
     description,
   };
 
+  // Convert formData to the format expected by your backend
   const requestData = JSON.stringify({
     ...formData,
     participants: participants, // Use the directly prepared data
@@ -139,7 +143,7 @@ const handleSubmit = async (e) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': 'Bearer ${accessToken}',
         },
         body: requestData,
     });
@@ -150,7 +154,7 @@ const handleSubmit = async (e) => {
 
     // Handle successful submission
     console.log('Calendar created successfully.');
-    navigate('/dashboard/')
+    //history.push('/'); // Redirect to the homepage
   } catch (error) {
     console.error('Failed to create calendar:', error);
     // Handle errors, such as by showing an error message to the user
@@ -187,6 +191,7 @@ const handleSubmit = async (e) => {
               )
             }
         </div>
+        {/* Placeholder for the availability section */}
         <div className="mb-6">
             <p className="text-sm font-medium text-gray-900">Availability:</p>
             <AvailabilityPicker setSelectedDates={handleSelectedDatesChange} />

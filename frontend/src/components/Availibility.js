@@ -1,15 +1,15 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import 'rsuite/dist/rsuite.min.css';
 import { DateRangePicker } from 'rsuite';
 
 import 'react-datepicker/dist/react-datepicker.css';
-import { eachDayOfInterval, format } from 'date-fns';
+import { eachDayOfInterval, format, parseISO } from 'date-fns';
 import TimeRangePicker from './TimeRange';
-import { setHours, setMinutes, addMinutes, startOfDay, addHours } from 'date-fns';
+import { setHours, setMinutes, addDays, isBefore, addHours } from 'date-fns';
 
-const AvailabilityPicker = ({ setSelectedDates: updateParentSelectedDates }) => {
-  const [dateRange, setDateRange] = useState(null);
+const AvailabilityPicker = ({ setSelectedDates: updateParentSelectedDates, isRangeFixed = false, fixedDateRange}) => {
   const [selectedDates, setSelectedDates] = useState({});
+  const [dateRange, setDateRange] = useState(null);
   
   const handleRangeChange = (range) => {
       // Ensure range is defined and has two date
@@ -25,12 +25,31 @@ const AvailabilityPicker = ({ setSelectedDates: updateParentSelectedDates }) => 
       const formattedDate = format(day, 'yyyy-MM-dd');
       acc[formattedDate] = selectedDates[formattedDate] || {
         active: false,
-        // Note: Initial startTime and endTime removed since we now handle them via TimeRangePicker
       };
       return acc;
     }, {});
     setSelectedDates(newSelectedDates);
     updateParentSelectedDates(newSelectedDates); // Propagate initial date range to parent
+  };
+
+  const shouldDisableDate = (date) => {
+    if (isRangeFixed && fixedDateRange) {
+      const { start, end } = fixedDateRange;
+      
+      // Ensure both start and end are defined before proceeding
+      if (!start || !end) {
+        return false; // Or handle as appropriate for your logic
+      }
+  
+      const startDate = parseISO(start);
+      const endDate = addDays(parseISO(end), 1); // Make end inclusive
+  
+      // Disable dates before start or after end
+      return isBefore(date, startDate) || isBefore(endDate, date);
+    }
+  
+    // Default behavior: disable dates before today
+    return isBefore(date, new Date());
   };
 
   const toggleDate = (date) => {
@@ -91,7 +110,8 @@ useEffect(() => {
   return (
     <>
       <div className="mx-auto flex-col p-4">
-        <DateRangePicker onChange={handleRangeChange} placeholder="Select Date Range" shouldDisableDate={DateRangePicker.beforeToday()}/>
+      <DateRangePicker onChange={handleRangeChange} placeholder="Select Date Range" shouldDisableDate={shouldDisableDate}/>
+        
         {dateRange && Object.keys(selectedDates).map((date, index) => (
           <div key={index} className="flex items-center my-8 min-h-8">
               <label className="inline-flex items-center cursor-pointer">

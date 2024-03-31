@@ -1,8 +1,21 @@
 
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth(); // Assuming your AuthContext provides a logout method
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login'); // Navigate to login page after logout
+    } catch (error) {
+      console.error("Failed to log out", error);
+    }
+  };
 
   return (
     <div>
@@ -20,10 +33,10 @@ const Sidebar = () => {
     <aside id="logo-sidebar" className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
       <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
         <div className="flex ps-2.5 mb-5 justify-between">
-            <a href="dashboard.html" className='flex items-center p-1.5'>
+            <Link to="/dashboard" className='flex items-center p-1.5'>
                 <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
                 <span className="self-center text-xl font-semibold whitespace-nowrap ">1on1</span>
-            </a>
+            </Link>
             <button type="button" data-drawer-hide="logo-sidebar" aria-controls="logo-sidebar" className="text-gray-400 sm:hidden bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" >
                 <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
             </button>
@@ -54,7 +67,7 @@ const Sidebar = () => {
               </Link>
           </li>
           <li>
-            <a href="contact.html" className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+              <Link to="/contacts" className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
             <svg
                 className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                 aria-hidden="true"
@@ -64,10 +77,10 @@ const Sidebar = () => {
                     d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
             </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">Contacts</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="login.html" className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100  group">
+              <button onClick={handleLogout} className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100  group">
             <svg
                 className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" 
                 aria-hidden="true"
@@ -81,7 +94,7 @@ const Sidebar = () => {
                     d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z" />
             </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">Sign Out</span>
-            </a>
+            </button>
           </li>
         </ul>
       </div>

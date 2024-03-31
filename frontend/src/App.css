@@ -124,3 +124,144 @@
     transform: rotate(360deg);
   }
 }
+
+@media screen and (max-width: 640px) {
+  .add-contact-button{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: xx-small; 
+  }
+}
+
+*{
+  font-family: 'Raleway', sans-serif;
+}
+
+.card{
+  border-bottom: 8px solid #ffbcd9 !important;
+  transition: transform 0.3s;
+
+
+}
+
+.card:hover{
+  transform: translateY(-8px);
+}
+
+.contact-card{
+  transition: transform 0.3s;
+}
+
+.contact-card:hover{
+  transform: translateY(-8px);
+}
+
+footer{
+  bottom:0;
+}
+
+
+.table-container{
+  height: 700px;
+  width: 100%;
+  overflow-x: scroll;
+}
+
+table, thead, th {
+padding: 3px;
+position: sticky;
+top: 0;
+z-index: 1;
+width: 25vw;
+background: white;
+}
+table, td {
+background: #fff;
+padding: 4px 5px;
+text-align: center;
+}
+
+table, tbody, th {
+font-weight: 100;
+font-style: italic;
+text-align: left;
+position: relative;
+}
+table, thead, th:first-child {
+position: sticky;
+left: 0;
+z-index: 2;
+}
+table,tbody,th {
+position: sticky;
+left: 0;
+background: white;
+z-index: 1;
+}
+
+@media screen and (max-width: 640px) {
+  th, #head, td {
+    max-width: 5vw;
+    font-size: 7.5px !important;
+  }
+
+  .add-contact-button{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: xx-small; 
+  }
+}
+
+.selected {
+  background: linear-gradient(to bottom right, #f3f6f6, #90d6f9);
+
+}
+
+.selectable:hover {
+  background: linear-gradient(to bottom right, #90d6f9, #f3f6f6);
+  cursor: pointer;
+}
+
+.selectable {
+  transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.selected1{
+background: linear-gradient(to bottom right, #f3f6f6, #90d6f9);
+}
+
+.selectable1:hover{
+background: linear-gradient(to bottom right, #6c63ff, #e7dffb);
+cursor: pointer;
+}
+
+.selectable1{
+transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.purple-selected {
+background: linear-gradient(to bottom right, #6c63ff, #e7dffb); 
+}
+
+.purple-selected1 {
+background: linear-gradient(to bottom right, #6c63ff, #e7dffb); 
+}
+
+.selectable2:hover{
+background: linear-gradient(to bottom right, #6c63ff, #e7dffb);
+cursor: pointer;
+}
+
+.selectable2{
+transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.flex-container{
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+main{
+flex: 1;
+}

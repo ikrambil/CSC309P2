@@ -58,7 +58,7 @@ class InvitationDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Invitation
-        fields = ['invitee_email', 'status', 'availability']
+        fields = ['invitee_email', 'status', 'availability','calendar']
         # availability field is included in case you also want to show this
 
     def get_availability(self, obj):

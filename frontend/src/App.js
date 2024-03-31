@@ -6,11 +6,14 @@ import Login from './components/Login';
 import ViewCalendar from './components/ViewCalendar';
 import SignUp from './components/Signup';
 import EditCalendar from './components/EditCalendar';
+import AddInvite from './components/AddInvitation.js';
+import ViewInvite from './components/ViewInvitation.js';
 import './styles.css';
 import './App.css';
 import 'flowbite';
 import FinalizedCalendar from './components/FinalizedCalendar';
 import CalendarRecommendation from './components/CalendarRecommendation';
+import ContactPage from './components/Contacts/ContactPage.jsx';
 
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,12 +27,15 @@ function App() {
         <Routes>
           {/*  put an example below for how to protect route using helper component. Use it for future routes! */}
           {/* <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} /> */}
-          <Route path="/dashboard/" element={<Dashboard />} />
-          <Route path="/create-calendar" element={<CreateCalendar />} />
-          <Route path="/view-calendar/:calendarId" element={<ViewCalendar />} />
-          <Route path="/edit-calendar/:calendarId" element={<EditCalendar />} />
-          <Route path="/finalizedCalendar/:calendarid" element={<FinalizedCalendar />} />
-          <Route path='/recommendedCalendars/:calendarId' element={<CalendarRecommendation />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/create-calendar" element={<ProtectedRoute><CreateCalendar /></ProtectedRoute>} />
+          <Route path="/view-calendar/:calendarId" element={<ProtectedRoute><ViewCalendar /></ProtectedRoute>} />
+          <Route path="/edit-calendar/:calendarId" element={<ProtectedRoute><EditCalendar /></ProtectedRoute>} />
+          <Route path="/edit-invite/:token" element={<ProtectedRoute><AddInvite /></ProtectedRoute>} />
+          <Route path="/view-invite/:token" element={<ProtectedRoute><ViewInvite /></ProtectedRoute>} />
+          <Route path="/finalizedCalendar/:calendarid" element={<ProtectedRoute><FinalizedCalendar /></ProtectedRoute>} />
+          <Route path='/recommendedCalendars/:calendarId' element={<ProtectedRoute><CalendarRecommendation /></ProtectedRoute>} />
+          <Route path="/contacts" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
