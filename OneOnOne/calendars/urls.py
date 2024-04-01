@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CalendarCreateView, CalendarDetailView, UpdateInvitationView, CalendarRecommendationsView, InvitationDetailView, SendReminderView, FinalizeCalendarView, CalendarUpdateAvailabilityView, UserCalendarsView
+from .views import CalendarCreateView, CalendarDetailView, UpdateInvitationView, CalendarRecommendationsView, InvitationDetailView, SendReminderView, FinalizeCalendarView, CalendarUpdateAvailabilityView, UserCalendarsView, SendConfirmationView
 
 urlpatterns = [
     path('create/', CalendarCreateView.as_view(), name='create-calendar'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('invitations/<uuid:token>/view/', InvitationDetailView.as_view(), name='invitation-detail'),
     path('<int:calendar_id>/recommendations/', CalendarRecommendationsView.as_view(), name='calendar-recommendations'),
     path('<int:calendar_id>/finalize/', FinalizeCalendarView.as_view(), name='finalize-calendar'),
+    path('send-confirmation/', SendConfirmationView.as_view(), name='send-comfirmation'),
 ]

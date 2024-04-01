@@ -92,7 +92,7 @@ const FinalizedCalendar = () => {
                         }))
                     ).reduce((acc, val) => acc.concat(val), []),
                 }}
-                currentView='Month'
+            
                 readonly={true}
             >
                     <ViewsDirective>

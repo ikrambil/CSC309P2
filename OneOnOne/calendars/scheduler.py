@@ -17,12 +17,6 @@ def find_overlaps(host_slots, invitee_slots, num_schedules=3):
     overlaps = []
     for host_start, host_end in host_slots:
         for inv_start, inv_end in invitee_slots:
-            # Assuming all datetime objects are in UTC timezone
-            host_start = host_start.replace(tzinfo=pytz.utc).astimezone(est_tz)
-            inv_start = inv_start.replace(tzinfo=pytz.utc).astimezone(est_tz)
-            host_end = host_end.replace(tzinfo=pytz.utc).astimezone(est_tz)
-            inv_end = inv_end.replace(tzinfo=pytz.utc).astimezone(est_tz)
-
             start_max = max(host_start, inv_start)
             end_min = min(host_end, inv_end)
             while start_max + timedelta(minutes=30) <= end_min:
@@ -31,6 +25,7 @@ def find_overlaps(host_slots, invitee_slots, num_schedules=3):
                     return overlaps
                 start_max += timedelta(minutes=30)
     return overlaps
+
 
 def schedule_invitations(host_availability, invitations):
     """Attempt to schedule meetings based on availabilities, offering grouped schedules,
@@ -47,8 +42,6 @@ def schedule_invitations(host_availability, invitations):
             # Adjust host slots based on the overlaps found
             for overlap in possible_overlaps:
                 overlap_start, overlap_end = datetime.fromisoformat(overlap[0]), datetime.fromisoformat(overlap[1])
-                overlap_start = overlap_start.replace(tzinfo=pytz.utc).astimezone(est_tz).replace(tzinfo=None)
-                overlap_end = overlap_end.replace(tzinfo=pytz.utc).astimezone(est_tz).replace(tzinfo=None)
                 host_slots = [slot for slot in host_slots if slot[1] <= overlap_start or slot[0] >= overlap_end]
         else:
             # If no overlaps are found, indicate a placeholder for scheduling attempts

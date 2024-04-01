@@ -76,6 +76,9 @@ const CalendarRecommendation = () => {
         fetchCalendarDetails();
     }, [calendarId]);
     
+    if (!calendar) {
+        return <div>Loading...</div>;
+    }
 
     if (!calendar1) {
     return <div>Loading...</div>;
@@ -102,16 +105,106 @@ const CalendarRecommendation = () => {
     
             if (!response.ok) throw new Error('Network response was not ok');
             // Assuming successful finalization
-            navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
+            //navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
         } catch (error) {
             console.error('Error finalizing calendar', error);
             // Handle error accordingly
         }
     };
+
+    const sendConfirmation = async (email, calendarId, date, startTime, endTime) => {
+        const url = 'http://localhost:8000/calendars/send-confirmation/';
+        console.log('Calendar Id: ', calendarId);
+        const data = {
+            email: email, 
+            calendar_id: calendarId,
+            date: date,
+            start_time: startTime,
+            end_time: endTime
+        };
+
+        try{
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if(!response.ok){
+                throw new Error('Network response was not ok');
+            }
+
+            const responseData = await response.json();
+            console.log(responseData.message);
+            alert(`Confirmation sent to ${email}.`);
+        }
+        catch(error){
+            console.error('Failed to send confirmation: ', error);
+            alert('Failed to send confirmation.');
+        }
+    };
+
+    const finalizeAndSendConfirmation = async () => {
+        try {
+            await finalizeCalendar(calendarId, accessToken, selectedOption, navigate);
+            const processedMeetings = new Set(); // Set to keep track of processed meetings
+            selectedOption.forEach(event => {
+                for (let i = 0; i < event.meeting_times.length; i += 2) {
+                    const startTime = event.meeting_times[i];
+                    const endTime = event.meeting_times[i + 1];
+                    const invitee = event.invitee;
+                    const date = new Date(startTime).toLocaleDateString();
+                    sendConfirmation(invitee, calendarId, date, startTime, endTime);
+                    processedMeetings.add(startTime); // Add meeting to processed set
+                }
+            });
+            // Navigate after finalizing and sending confirmation
+            navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
+        } catch (error) {
+            console.error('Error finalizing calendar and sending confirmation', error);
+            // Handle error accordingly
+        }
+    };
+    
     
     const getButtonClass = (option) => {
         return selectedOption === option ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black';
     };
+
+    if (selectedOption && selectedOption.some(event => event.meeting_times === "No available time slot")) {
+        return (
+        <>
+        <Sidebar />
+            <div className='p-8 sm:ml-64'>
+                <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
+                    <h1 className="text-2xl md:text-4xl">Choose a Calendar:</h1>
+                </div>
+                <div className='flex flex-col items-center'>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Name:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.name} </div>
+                </div>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Description:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.description} </div>
+                </div>
+                <div className="text-center text-red-500 text-xl">No Possible calendars. Please increase your availability or contact your invitees to increase their availability.</div>
+                <div className="flex justify-center">
+                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={() => {navigate(`/edit-calendar/${calendarId}`)}}>Edit Availability</button>
+                </div>
+                </div>
+            </div>
+        <Footer />
+        </>
+    );
+    }
 
     return (
         <>
@@ -151,7 +244,7 @@ const CalendarRecommendation = () => {
                                 EndTime: new Date(event.meeting_times[index + 1]) // Assuming meeting_times is always in pairs
                             }))
                         ))
-                    }} currentView='Month'
+                    }}
                     readonly={true}>
                         <ViewsDirective>
                             <ViewDirective option="Day" />
@@ -164,7 +257,7 @@ const CalendarRecommendation = () => {
                     </ScheduleComponent>
                 )}
                 <div className="flex justify-center">
-                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={() => finalizeCalendar(calendarId, accessToken, selectedOption, navigate)}>Finalize</button>
+                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={finalizeAndSendConfirmation}>Finalize</button>
                 </div>
             </div>
             </div>
