@@ -171,6 +171,38 @@ const CalendarRecommendation = () => {
         return selectedOption === option ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black';
     };
 
+    if (selectedOption && selectedOption.some(event => event.meeting_times === "No available time slot")) {
+        return (
+        <>
+        <Sidebar />
+            <div className='p-8 sm:ml-64'>
+                <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
+                    <h1 className="text-2xl md:text-4xl">Choose a Calendar:</h1>
+                </div>
+                <div className='flex flex-col items-center'>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Name:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.name} </div>
+                </div>
+                <div className="mb-6">
+                    <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center">
+                        <h1 className="text-xl md:text-2xl">Description:</h1>
+                    </div>
+                    <div htmlFor="calendarName" className="block px-8 text-sm text-xl text-gray-900 ">{calendar.description} </div>
+                </div>
+                <div className="text-center text-red-500 text-xl">No Possible calendars. Please increase your availability or contact your invitees to increase their availability.</div>
+                <div className="flex justify-center">
+                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={() => {navigate(`/edit-calendar/${calendarId}`)}}>Edit Availability</button>
+                </div>
+                </div>
+            </div>
+        <Footer />
+        </>
+    );
+    }
+
     return (
         <>
         <Sidebar />
