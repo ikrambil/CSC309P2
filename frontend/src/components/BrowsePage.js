@@ -3,11 +3,11 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-import CalendarCard from './CalendarCard';
+import BrowseCalendarCard from './BrowseCalendarCard';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 
-const Dashboard = () => {
+const BrowsePage = () => {
   const [calendars, setCalendars] = useState([]);
   const { userId } = useParams();
   const { accessToken } = useAuth();
@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchCalendars = async () => {
-      const url = 'http://localhost:8000/calendars/all/';
+      const url = 'http://localhost:8000/calendars/browse/';
       try {
           const response = await fetch(url, {
               method: 'GET',
@@ -43,11 +43,11 @@ const Dashboard = () => {
     <div className="app-container">
         <div className="p-8 sm:ml-64">
             <div className="text-4xl text-left w-full border-b p-4">
-                <h1 className="font-bold">Somethingss</h1>
+                <h1 className="font-bold">Public Calendars:</h1>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-4">
                 {calendars.map((calendar, index) => (
-                    <CalendarCard key={index} id={calendar.id} title={calendar.name} description={calendar.description} pending={calendar.pendingInvitationsCount} accepted={calendar.acceptedInvitationsCount} finalized={calendar.finalized} link="#" />
+                    <BrowseCalendarCard key={index} id={calendar.id} title={calendar.name} description={calendar.description} pending={calendar.pendingInvitationsCount} accepted={calendar.acceptedInvitationsCount} finalized={calendar.finalized} link="#" />
                 ))}
             </div>
         </div>
@@ -57,4 +57,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default BrowsePage;

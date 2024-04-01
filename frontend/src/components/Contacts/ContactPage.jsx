@@ -23,7 +23,7 @@ const ContactPage = () => {
       console.log("fetched");
       try {
         const response = await fetch(
-          "https://csc309p2.onrender.com/accounts/profile/contacts/",
+          "http://127.0.0.1:8000/accounts/profile/contacts/",
           {
             method: "GET",
             headers: {
@@ -55,7 +55,7 @@ const ContactPage = () => {
 
     try {
       const response = await fetch(
-        "https://csc309p2.onrender.com/accounts/profile/addcontact/",
+        "http://127.0.0.1:8000/accounts/profile/addcontact/",
         {
           method: "PATCH",
           headers: {

@@ -72,6 +72,19 @@ class UserCalendarsView(APIView):
         )
         serializer = CalendarDetailSerializer(calendars, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BrowseCalendarsView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+
+        # Prefetch invitations to optimize database queries
+        invitations = Invitation.objects.all()
+        calendars = Calendar.objects.filter().exclude(owner=user).prefetch_related(
+            Prefetch('invitations', queryset=invitations)
+        )
+        serializer = CalendarDetailSerializer(calendars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class CalendarUpdateAvailabilityView(APIView):
     permission_classes = [IsAuthenticated]
