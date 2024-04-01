@@ -76,6 +76,9 @@ const CalendarRecommendation = () => {
         fetchCalendarDetails();
     }, [calendarId]);
     
+    if (!calendar) {
+        return <div>Loading...</div>;
+    }
 
     if (!calendar1) {
     return <div>Loading...</div>;
