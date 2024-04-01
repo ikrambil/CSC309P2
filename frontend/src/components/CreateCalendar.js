@@ -5,12 +5,13 @@ import ContactDropdown from './ContactDropdown';
 import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate} from 'react-router-dom';
 
 
 const CreateCalendar = () => {
   const { accessToken } = useAuth();
-  
-  // State for the form fields
+  let navigate = useNavigate();
+
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -154,7 +155,7 @@ const handleSubmit = async (e) => {
 
     // Handle successful submission
     console.log('Calendar created successfully.');
-    //history.push('/'); // Redirect to the homepage
+    navigate(`/dashboard/`);
   } catch (error) {
     console.error('Failed to create calendar:', error);
     // Handle errors, such as by showing an error message to the user
