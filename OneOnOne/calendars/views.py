@@ -43,7 +43,7 @@ class CalendarCreateView(APIView):
                 send_mail(
                     'You are invited to submit your availability',
                     f'Please submit your availability by following this link: {availability_url}',
-                    'from@example.com',  # Use your actual email
+                    'OneOnOne@mail.com',  # Use your actual email
                     [email],
                     fail_silently=False,
                 )
@@ -188,6 +188,35 @@ class SendReminderView(APIView):
         )
 
         return Response({'message': f'Reminder sent to {email}.'}, status=status.HTTP_200_OK)
+    
+class SendConfirmationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        calendar_id = request.data.get('calendar_id')
+        date = request.data.get('date')
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+
+        #if not email or not calendar_id or not start_time or not end_time:
+        #    return Response({'message': 'Email address and calendar ID are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            calendar = Calendar.objects.get(id=calendar_id)
+        except Calendar.DoesNotExist:
+            return Response({'message': 'Calendar not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        send_mail(
+            'Confirmation: OneOnOne meeting',
+            f'Your meeting with {calendar.owner} is set on {date} form {start_time} to {end_time}',
+            'OneOnOne@mail.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({'message': f'Confirmation sent to {email}.'}, status=status.HTTP_200_OK)
+
 
 class UpdateInvitationView(APIView):
     permission_classes = []

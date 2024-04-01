@@ -102,12 +102,70 @@ const CalendarRecommendation = () => {
     
             if (!response.ok) throw new Error('Network response was not ok');
             // Assuming successful finalization
-            navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
+            //navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
         } catch (error) {
             console.error('Error finalizing calendar', error);
             // Handle error accordingly
         }
     };
+
+    const sendConfirmation = async (email, calendarId, date, startTime, endTime) => {
+        const url = 'http://localhost:8000/calendars/send-confirmation/';
+        console.log('Calendar Id: ', calendarId);
+        const data = {
+            email: email, 
+            calendar_id: calendarId,
+            date: date,
+            start_time: startTime,
+            end_time: endTime
+        };
+
+        try{
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if(!response.ok){
+                throw new Error('Network response was not ok');
+            }
+
+            const responseData = await response.json();
+            console.log(responseData.message);
+            alert(`Confirmation sent to ${email}.`);
+        }
+        catch(error){
+            console.error('Failed to send confirmation: ', error);
+            alert('Failed to send confirmation.');
+        }
+    };
+
+    const finalizeAndSendConfirmation = async () => {
+        try {
+            await finalizeCalendar(calendarId, accessToken, selectedOption, navigate);
+            const processedMeetings = new Set(); // Set to keep track of processed meetings
+            selectedOption.forEach(event => {
+                for (let i = 0; i < event.meeting_times.length; i += 2) {
+                    const startTime = event.meeting_times[i];
+                    const endTime = event.meeting_times[i + 1];
+                    const invitee = event.invitee;
+                    const date = new Date(startTime).toLocaleDateString();
+                    sendConfirmation(invitee, calendarId, date, startTime, endTime);
+                    processedMeetings.add(startTime); // Add meeting to processed set
+                }
+            });
+            // Navigate after finalizing and sending confirmation
+            navigate(`/finalizedCalendar/${calendarId}`, { state: { data: selectedOption } });
+        } catch (error) {
+            console.error('Error finalizing calendar and sending confirmation', error);
+            // Handle error accordingly
+        }
+    };
+    
     
     const getButtonClass = (option) => {
         return selectedOption === option ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black';
@@ -151,7 +209,7 @@ const CalendarRecommendation = () => {
                                 EndTime: new Date(event.meeting_times[index + 1]) // Assuming meeting_times is always in pairs
                             }))
                         ))
-                    }} currentView='Month'
+                    }}
                     readonly={true}>
                         <ViewsDirective>
                             <ViewDirective option="Day" />
@@ -164,7 +222,7 @@ const CalendarRecommendation = () => {
                     </ScheduleComponent>
                 )}
                 <div className="flex justify-center">
-                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={() => finalizeCalendar(calendarId, accessToken, selectedOption, navigate)}>Finalize</button>
+                <button className="mt-4 p-2 rounded bg-blue-700 text-white" onClick={finalizeAndSendConfirmation}>Finalize</button>
                 </div>
             </div>
             </div>

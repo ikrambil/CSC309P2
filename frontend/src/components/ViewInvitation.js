@@ -134,7 +134,7 @@ const ViewInvite = () => {
                        <ScheduleComponent eventSettings={{ 
                           dataSource: events 
                           }} 
-                          currentView='Month'
+                        
                           readonly={true}
                           >
                           <ViewsDirective>
