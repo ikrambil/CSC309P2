@@ -104,6 +104,11 @@ const ViewCalendar = () => {
       finalized: calendar.finalized
     });
 
+    let selectedDate = null;
+    if (events.length > 0) {
+      selectedDate = new Date(events[0].StartTime);
+    }
+
 
   return (
     <>
@@ -133,7 +138,7 @@ const ViewCalendar = () => {
             <ScheduleComponent eventSettings={{ 
               dataSource: events 
               }} 
-             
+              selectedDate={selectedDate}
               readonly={true}
               >
               <ViewsDirective>

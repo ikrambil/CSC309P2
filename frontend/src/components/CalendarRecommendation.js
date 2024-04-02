@@ -44,7 +44,7 @@ const CalendarRecommendation = () => {
         fetchCalendarDetails();
     }, [calendarId, accessToken, navigate]);
 
-    console.log(calendar);
+    //console.log(calendar);
 
     useEffect(() => {
         
@@ -84,15 +84,15 @@ const CalendarRecommendation = () => {
     return <div>Loading...</div>;
     }
 
-    console.log(calendar1);
+    /*console.log(calendar1);
     console.log(calendar2);
     console.log(calendar3);
-    console.log(selectedOption);
+    console.log(selectedOption);*/
 
     const finalizeCalendar = async (calendarId, accessToken, selectedOption, navigate) => {
         const url = `http://localhost:8000/calendars/${calendarId}/finalize/`;
         const requestdata = JSON.stringify({ selectedOption });
-        console.log("Request Data: ", requestdata)
+        //console.log("Request Data: ", requestdata)
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -174,6 +174,11 @@ const CalendarRecommendation = () => {
         return selectedOption === option ? 'bg-blue-700 text-white' : 'bg-gray-200 text-black';
     };
 
+    let selectedDate = null;
+    if (selectedOption.length > 0 && selectedOption[0].meeting_times.length > 0) {
+        selectedDate = new Date(selectedOption[0].meeting_times[0]);
+    }
+
     if (selectedOption && selectedOption.some(event => event.meeting_times === "No available time slot")) {
         return (
         <>
@@ -245,7 +250,9 @@ const CalendarRecommendation = () => {
                             }))
                         ))
                     }}
-                    readonly={true}>
+                    readonly={true}
+                    selectedDate={selectedDate}
+                    >
                         <ViewsDirective>
                             <ViewDirective option="Day" />
                             <ViewDirective option="Week" />

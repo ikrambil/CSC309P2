@@ -112,6 +112,11 @@ const ViewInvite = () => {
     };
   });
 
+  let selectedDate = null;
+  if (events.length > 0) {
+    selectedDate = new Date(events[0].StartTime);
+  }
+
   return (
     <>
       <div className='p-8'>
@@ -134,7 +139,7 @@ const ViewInvite = () => {
                        <ScheduleComponent eventSettings={{ 
                           dataSource: events 
                           }} 
-                        
+                          selectedDate={selectedDate}
                           readonly={true}
                           >
                           <ViewsDirective>
