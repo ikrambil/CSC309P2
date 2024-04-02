@@ -205,7 +205,7 @@ useEffect(() => {
         <h1 className="text-2xl md:text-4xl">Edit Your Calendar:</h1>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
-      <div className='w-1/2'>
+      <div className='sm:w-1/2 w-full'>
         <div className="mb-6">
             <label htmlFor="calendarName" className="block mb-2 text-sm font-medium text-gray-900">Name: </label>
             <input type="text" id="calendarName" value={calendarName} onChange={(e) => setCalendarName(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="My Calendar" required />

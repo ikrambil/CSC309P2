@@ -16,7 +16,7 @@ const FinalizedCalendar = () => {
     let { calendarId } = useParams();
     const [calendar, setCalendar] = useState(null);
 
-    console.log("CalendarId: ", calendarId);
+    //console.log("CalendarId: ", calendarId);
 
     useEffect(() => {
         // Placeholder for API call to fetch calendar details
@@ -48,17 +48,21 @@ const FinalizedCalendar = () => {
         return <div>Loading...</div>;
         }
 
-    console.log("Calendar info: ", calendar);
-    console.log("final: ", typeof calendar.finalized_schedule);
+    //console.log("Calendar info: ", calendar);
+    //console.log("final: ", typeof calendar.finalized_schedule);
 
     const finalizedString = calendar.finalized_schedule.replace(/'/g, '"');
-    console.log("Finalized String: ",finalizedString);
+    //console.log("Finalized String: ",finalizedString);
 
     const finalizedSchedule = JSON.parse(finalizedString);
 
-    console.log("Finalized Info: ", finalizedSchedule);
-    console.log("Final type: ", typeof finalizedSchedule);
-;
+    //console.log("Finalized Info: ", finalizedSchedule);
+    //console.log("Final type: ", typeof finalizedSchedule);
+
+    let selectedDate = null;
+    if (finalizedSchedule.length > 0 && finalizedSchedule[0].meeting_times.length > 0) {
+        selectedDate = new Date(finalizedSchedule[0].meeting_times[0]);
+    }
 
   return (
     <>
@@ -92,7 +96,7 @@ const FinalizedCalendar = () => {
                         }))
                     ).reduce((acc, val) => acc.concat(val), []),
                 }}
-                currentView='Month'
+                selectedDate={selectedDate}
                 readonly={true}
             >
                     <ViewsDirective>

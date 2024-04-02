@@ -4,6 +4,11 @@ import Footer from './Footer';
 import AvailabilityPicker from './Availibility';
 import {format, parseISO, startOfDay, subHours } from 'date-fns';
 import { useParams, useNavigate } from 'react-router-dom';
+import 'flowbite';
+import { ScheduleComponent, Inject, ViewsDirective, ViewDirective, Day, Week, Year, Month, Agenda } from '@syncfusion/ej2-react-schedule';
+import { registerLicense } from '@syncfusion/ej2-base';
+
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxdcHRWRWBZUkR1WkA=');
 
 
 
@@ -98,13 +103,27 @@ const ViewInvite = () => {
       };
   if (isLoading) return (<div>Loading...</div>);
 
+  const events = (invitation.availability || []).map((slot, index) => {
+    return {
+      Id: index + 1,
+      Subject: 'Availability',
+      StartTime: new Date(slot.start_time),
+      EndTime: new Date(slot.end_time)
+    };
+  });
+
+  let selectedDate = null;
+  if (events.length > 0) {
+    selectedDate = new Date(events[0].StartTime);
+  }
+
   return (
     <>
       <div className='p-8'>
         <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-left">
           <h1 className="text-2xl md:text-4xl">Welcome! You have been invited to {calendar?.name}</h1>
         </div>
-        <div className='w-1/2'>
+        <div >
           <div className="mb-6">
                 <div className="text-left w-full border-b p-4 flex justify-left mb-4 items-left">
                     <h1 className="text-xl md:text-2xl">Description:</h1>
@@ -117,12 +136,21 @@ const ViewInvite = () => {
                 </div>
                 {invitation && invitation.availability && invitation.availability.length > 0 ? (
                     <div>
-                        {invitation.availability.map((slot, index) => (
-                            <div key={index} className="px-8 text-sm text-xl text-gray-900 mb-2">
-                                <div>Start: {new Date(slot.start_time).toLocaleString()}</div>
-                                <div>End: {new Date(slot.end_time).toLocaleString()}</div>
-                            </div>
-                        ))}
+                       <ScheduleComponent eventSettings={{ 
+                          dataSource: events 
+                          }} 
+                          selectedDate={selectedDate}
+                          readonly={true}
+                          >
+                          <ViewsDirective>
+                              <ViewDirective option="Day" />
+                              <ViewDirective option="Week" />
+                              <ViewDirective option="Month" />
+                              <ViewDirective option="Year" />
+                              <ViewDirective option="Agenda" />
+                          </ViewsDirective>
+                          <Inject services={[Day, Week, Month, Year, Agenda]} />
+                        </ScheduleComponent>
                     </div>
                     
                 ) : (
@@ -130,11 +158,11 @@ const ViewInvite = () => {
                         <p>Please put in your availability.</p>
                     </div>
                 )}
-                <div className='p-8'>
+                <div className='p-8 flex justify-center'>
                 <button onClick={handleEditAvailabilityClick} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                             Edit Availability
-                        </button>
-                        </div>
+                </button>
+                </div>
             </div>
         </div>
       </div>
