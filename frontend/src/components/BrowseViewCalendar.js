@@ -47,35 +47,36 @@ const BrowseViewCalendar = () => {
     }
     console.log(calendar);
     console.log(typeof calendar.availability);
-    const sendReminder = async (email, calendarId) => {
-        const url = 'http://localhost:8000/calendars/send-reminder/';
-        const data = {
-          email: email,
-          calendar_id: calendarId
-        };
-      
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`, 
-            },
-            body: JSON.stringify(data),
-          });
-      
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-      
-          const responseData = await response.json();
-          console.log(responseData.message);
-          alert(`Reminder sent to ${email}.`); // You can replace this with a more user-friendly notification
-        } catch (error) {
-          console.error('Failed to send reminder:', error);
-          alert('Failed to send reminder.'); // You can replace this with a more user-friendly notification
-        }
+
+    const sendRequest = async (email, calendarId) => {
+      const url = `http://localhost:8000/calendars/request/${calendarId}/`;
+      const data = {
+        email: email,
+        calendar_id: calendarId
       };
+    
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`, 
+          },
+          body: JSON.stringify(data),
+        });
+    
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+    
+        const responseData = await response.json();
+        console.log(responseData.message);
+        alert(`Request sent to calendar owner`); // You can replace this with a more user-friendly notification
+      } catch (error) {
+        console.error('Failed to send request:', error);
+        alert('Failed to send request.'); // You can replace this with a more user-friendly notification
+      }
+    };
 
       const events = (calendar.availability || []).map((slot, index) => {
         return {
@@ -84,24 +85,6 @@ const BrowseViewCalendar = () => {
             StartTime: new Date(slot.start_time),
             EndTime: new Date(slot.end_time)
         };
-    });
-
-    const getCalendarStatusText = ({ pending, accepted, finalized }) => {
-      const totalInvitations = parseInt(pending, 10) + parseInt(accepted, 10);
-      
-      if (finalized) {
-        return 'Finalized';
-      } else if (totalInvitations === parseInt(accepted, 10)) {
-        return 'Waiting to Finalize';
-      } else {
-        return 'Waiting for Recipients';
-      }
-    };
-
-    const calendarStatusText = getCalendarStatusText({
-      pending: calendar.pendingInvitationsCount,
-      accepted: calendar.acceptedInvitationsCount,
-      finalized: calendar.finalized
     });
 
 
@@ -159,46 +142,17 @@ const BrowseViewCalendar = () => {
                         {invitation.invitee_email}
                         </p>
                     </div>
-                    <div className="flex flex-col space-y-2">
-                        {invitation.status === "Pending" ? (
-                        <>
-                            <span
-                            className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
-                            <span className="w-2 h-2 me-1 bg-red-500 rounded-full"></span>
-                            Not Confirmed
-                            </span>
-                            <span
-                            className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                            <span className="w-2 h-2 mr-1 bg-blue-500 rounded-full"></span>
-                            <button onClick={() => sendReminder(invitation.invitee_email, calendar.id)} className="underline">Send Reminder</button>
-                            </span>
-                        </>
-                        ) : (
-                        <span
-                            className="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
-                            <span className="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
-                            Confirmed
-                        </span>
-                        )}
-                    </div>
+                    
                     </div>
                 </li>
                 ))}
             </ul>
         </div>
-        <button
-          onClick={() => {
-            if (calendarStatusText === 'Finalized') {
-              navigate(`/finalizedCalendar/${calendarId}`);
-            } else if (calendarStatusText === 'Waiting to Finalize') {
-              navigate(`/recommendedCalendars/${calendarId}`);
-            } else {
-              navigate(`/browse`);
-            }
-          }}
+        <button disabled={isRequested}
+          onClick={() => sendRequest(user.email, calendar.id)}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
-          {calendarStatusText === 'Finalized' ? 'View Calendar' : calendarStatusText === 'Waiting to Finalize' ? 'See Recommended Calendars' : 'Request to Join'}
+          {isRequested ? 'Request Sent' : 'Send Request To Join'}
         </button>
         </div>
       </div>

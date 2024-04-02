@@ -51,6 +51,17 @@ class CalendarCreateView(APIView):
                 #Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class CalendarAcceptRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        requests = data.pop('requests')
+        
+        
+
 
 class CalendarDetailView(RetrieveAPIView):
     queryset = Calendar.objects.all()
@@ -97,6 +108,42 @@ class CalendarUpdateAvailabilityView(APIView):
         description = request.data.get('description')
         participants = request.data.get('participants')
         new_availability = request.data.get('availability')
+
+        if new_availability is None:
+            return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update the calendar fields if provided
+        if name is not None:
+            calendar.name = name
+        if description is not None:
+            calendar.description = description
+        if participants is not None:
+            # Assuming participants is a list of email addresses and stored as a JSON string in the model
+            # Validate and serialize the list as necessary before saving
+            calendar.participants = participants
+        
+        calendar.availability = new_availability
+        calendar.save()
+
+        # Optionally, return the updated calendar data using a serializer
+        serializer = CalendarSerializer(calendar)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CalendarUpdateRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        calendar = get_object_or_404(Calendar, pk=pk)
+
+        # Load the current calendar data and update it with the new data provided in the request
+        name = request.data.get('name')
+        description = request.data.get('description')
+        participants = request.data.get('participants')
+        new_availability = request.data.get('availability')
+        req = request.data.get('request')
+
+        calendar.requests.append(req)
+
 
         if new_availability is None:
             return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)

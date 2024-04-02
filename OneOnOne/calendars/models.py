@@ -9,6 +9,7 @@ class Calendar(models.Model):
     description = models.TextField(blank=True)
     owner = models.ForeignKey(User, related_name='owned_calendars', on_delete=models.CASCADE)
     participants = models.TextField(default='[]')  # To store participant emails as a JSON list
+    requests = models.TextField(default='[]') # Store emails of users who requested to join calendar as a JSON list
     availability = models.TextField(default='[]')  # Stores serialized JSON string
     finalized = models.BooleanField(default=False)
     finalized_schedule = models.TextField(default='[]', blank=True, null=True) # Stores the finalized schedule as serialized JSON string
@@ -22,10 +23,15 @@ class Calendar(models.Model):
     def save(self, *args, **kwargs):
         if isinstance(self.participants, list):  # Check if participants is already a list
             self.participants = json.dumps(self.participants, cls=DjangoJSONEncoder)
+        if isinstance(self.requests, list): # Check if requests is already a list
+            self.requests = json.dumps(self.requests, cls=DjangoJSONEncoder)
         super(Calendar, self).save(*args, **kwargs)
 
     def get_participant_emails(self):
         return json.loads(self.participants)
+    
+    def get_requests_emails(self):
+        return json.loads(self.requests)
     
     def get_finalized_schedule(self):
         return json.loads(self.finalized_schedule)
