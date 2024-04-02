@@ -94,8 +94,36 @@ class CalendarUpdateAvailabilityView(APIView):
         if description is not None:
             calendar.description = description
         if participants is not None:
-            # Assuming participants is a list of email addresses and stored as a JSON string in the model
-            # Validate and serialize the list as necessary before saving
+            print(calendar.participants, participants)
+            old_participants = calendar.get_participant_emails()
+            for participant in participants:
+                
+                if participant not in old_participants: # New Participant
+                    print("ADDDING A NEW PARTICIPANT",participant)
+                    invitation = Invitation.objects.create(calendar=calendar, invitee_email=participant, status='Pending')
+                    availability_url = f'http://localhost:3000/edit-invite/{invitation.token}'
+                    
+                    # Send an email to the participant
+                    send_mail(
+                        'You are invited to submit your availability',
+                        f'Please submit your availability by following this link: {availability_url}',
+                        'OneOnOne@mail.com',  # Use your actual email
+                        [participant],
+                        fail_silently=False,
+                    )
+            for participant in old_participants:
+                if participant not in participants: # Participant removed:
+                    print("REMOVING AN OLD PARTICIPANT",participant)
+                    print(participant)
+                    Invitation.objects.filter(calendar=calendar, invitee_email=participant).delete()
+                    send_mail(
+                        f'Sorry for the inconvinience, but you have been removed from {calendar.name}',
+                        f'You have been removed from {calendar.name}. If you believe this is a mistake, please contact the event organizer',
+                        'OneOnOne@mail.com',  # Use your actual email
+                        [participant],
+                        fail_silently=False,
+                    )
+
             calendar.participants = participants
         
         calendar.availability = new_availability

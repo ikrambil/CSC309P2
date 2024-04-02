@@ -5,12 +5,13 @@ import ContactDropdown from './ContactDropdown';
 import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate} from 'react-router-dom';
 
 
 const CreateCalendar = () => {
   const { accessToken } = useAuth();
-  
-  // State for the form fields
+  let navigate = useNavigate();
+
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -31,8 +32,8 @@ const CreateCalendar = () => {
   // Adjust useEffect to consider both dates and contacts for disabling submit
   useEffect(() => {
     const isAnyDateActive = Object.values(selectedDates).some(date => date.active);
-    const isAnyContactSelected = selectedContacts.length > 0;
-    setIsSubmitDisabled(!(isAnyDateActive && isAnyContactSelected));
+    // This condition ensures the submit button is disabled unless both a date and a contact are selected.
+    setIsSubmitDisabled(!isAnyDateActive || selectedContacts.length === 0);
   }, [selectedDates, selectedContacts]);
 
   useEffect(() => {
@@ -154,7 +155,7 @@ const handleSubmit = async (e) => {
 
     // Handle successful submission
     console.log('Calendar created successfully.');
-    //history.push('/'); // Redirect to the homepage
+    navigate(`/dashboard/`);
   } catch (error) {
     console.error('Failed to create calendar:', error);
     // Handle errors, such as by showing an error message to the user
@@ -169,7 +170,7 @@ const handleSubmit = async (e) => {
         <h1 className="text-2xl md:text-4xl">Create Your Calendar:</h1>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
-      <div className='w-1/2'>
+      <div className='sm:w-1/2 w-full'>
         <div className="mb-6">
             <label htmlFor="calendarName" className="block mb-2 text-sm font-medium text-gray-900">Name: </label>
             <input type="text" id="calendarName" value={calendarName} onChange={(e) => setCalendarName(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="My Calendar" required />
@@ -195,7 +196,7 @@ const handleSubmit = async (e) => {
         <div className="mb-6">
             <p className="text-sm font-medium text-gray-900">Availability:</p>
             <AvailabilityPicker setSelectedDates={handleSelectedDatesChange} />
-            {isSubmitDisabled && (
+            {Object.values(selectedDates).every(date => !date.active) && (
           <div className=" w-full text-center text-sm font-medium text-bold text-red-700 bg-red-300 rounded-lg">Please select at least one date.</div>
         )}
         </div>

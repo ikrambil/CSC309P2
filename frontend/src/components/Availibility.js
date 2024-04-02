@@ -109,8 +109,8 @@ useEffect(() => {
 
   return (
     <>
-      <div className="mx-auto flex-col p-4">
-      <DateRangePicker onChange={handleRangeChange} placeholder="Select Date Range" shouldDisableDate={shouldDisableDate}/>
+      <div className=" w-full flex-col p-4 justify-center items-center">
+      <DateRangePicker showOneCalendar onChange={handleRangeChange} placeholder="Select Date Range" shouldDisableDate={shouldDisableDate}/>
         
         {dateRange && Object.keys(selectedDates).map((date, index) => (
           <div key={index} className="flex items-center my-8 min-h-8">
