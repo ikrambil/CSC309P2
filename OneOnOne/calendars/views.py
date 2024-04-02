@@ -136,17 +136,8 @@ class CalendarUpdateRequestsView(APIView):
         calendar = get_object_or_404(Calendar, pk=pk)
 
         # Load the current calendar data and update it with the new data provided in the request
-        name = request.data.get('name')
-        description = request.data.get('description')
-        participants = request.data.get('participants')
-        new_availability = request.data.get('availability')
-        req = request.user
-
-        calendar.requests.append(req)
-
-
-        if new_availability is None:
-            return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        req = request.user #Get email of user who requested to join
         
         # Update the calendar fields if provided
         if name is not None:
