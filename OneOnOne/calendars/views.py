@@ -51,14 +51,6 @@ class CalendarCreateView(APIView):
                 #Invitation.objects.create(calendar=calendar, invitee_email=email, status='Pending')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-class CalendarAcceptRequestsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        requests = data.pop('requests')
         
 
 class CalendarDetailView(RetrieveAPIView):
@@ -121,7 +113,7 @@ class CalendarUpdateAvailabilityView(APIView):
             for participant in participants:
                 
                 if participant not in old_participants: # New Participant
-                    print("ADDDING A NEW PARTICIPANT",participant)
+                    print("ADDING A NEW PARTICIPANT",participant)
                     invitation = Invitation.objects.create(calendar=calendar, invitee_email=participant, status='Pending')
                     availability_url = f'http://localhost:3000/edit-invite/{invitation.token}'
                     
@@ -164,7 +156,7 @@ class CalendarUpdateRequestsView(APIView):
         # Load the current requests data
         current_requests = calendar.get_requests_emails()
         
-        # Get the new email request from the request data
+        
         new_request_email = request.data.get('email')
 
         # Check if the email is already in the requests list
@@ -178,6 +170,54 @@ class CalendarUpdateRequestsView(APIView):
             return Response({"message": "Request added successfully."}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Invalid request or email already requested."}, status=status.HTTP_400_BAD_REQUEST)
+
+class CalendarAcceptRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        calendar = get_object_or_404(Calendar, pk=pk)
+
+        # Load the current requests data
+        current_requests = calendar.get_requests_emails()
+
+        data = request.data
+        newEmail = data.get('email')    #Get email of person who requested to join
+        participant_emails = calendar.get_participant_emails()
+
+        if newEmail:
+
+            # Add user as contact
+            if newEmail not in participant_emails:
+                newContact = Contact.objects.create(request.user, "", newEmail)
+                newContact.save()
+
+
+            # Add user to list of participants
+            participant_emails.append(newEmail)
+            calendar.participants = participant_emails
+
+            # Remove request from current_requests
+            if newEmail in current_requests:
+                current_requests.remove(newEmail)
+                calendar.requests = current_requests
+            calendar.save()
+
+            # Create invitation for user
+            invitation = Invitation.objects.create(calendar=calendar, invitee_email=newEmail, status='Pending')
+            availability_url = f'http://localhost:3000/edit-invite/{invitation.token}'
+                
+            # Send an email to the participant
+            send_mail(
+                'You are invited to submit your availability',
+                f'Please submit your availability by following this link: {availability_url}',
+                'OneOnOne@mail.com',  # Use your actual email
+                [newEmail],
+                fail_silently=False,
+            )
+
+            return Response({"message": "User added successfully."}, status=status.HTTP_200_OK)
+        
+        return Response({"message": "Invalid request or user does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
 class CalendarRecommendationsView(APIView):
     permission_classes = [IsAuthenticated]

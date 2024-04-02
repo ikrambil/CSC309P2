@@ -48,13 +48,14 @@ const BrowseViewCalendar = () => {
     return <div>Loading...</div>;
     }
 
-    const sendRequest = async (calendarId) => {
+    const sendRequest = async () => {
       const url = `http://localhost:8000/calendars/request/${calendarId}/`;
       const data = {
-        calendar_id: calendarId
+        calendar_id: calendarId,
+        email: userEmail,
+        
       };
       console.log(data)
-      console.log(userEmail)
     
       try {
         const response = await fetch(url, {
@@ -131,7 +132,7 @@ const BrowseViewCalendar = () => {
             </ScheduleComponent>
         
         <button disabled={isRequested}
-          onClick={() => sendRequest(userEmail, calendar.id)}
+          onClick={() => sendRequest()}
           className="mt-8 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
           {isRequested ? 'Request Sent' : 'Send Request To Join'}
