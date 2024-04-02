@@ -140,7 +140,7 @@ class CalendarUpdateRequestsView(APIView):
         description = request.data.get('description')
         participants = request.data.get('participants')
         new_availability = request.data.get('availability')
-        req = request.data.get('request')
+        req = request.user
 
         calendar.requests.append(req)
 

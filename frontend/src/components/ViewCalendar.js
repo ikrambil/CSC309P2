@@ -77,10 +77,9 @@ const ViewCalendar = () => {
         }
       };
 
-      const acceptRequest = async (email, calendarId) => {
+      const acceptRequest = async (calendarId) => {
         const url = `http://localhost:8000/calendars/accept/${calendarId}/`;
         const data = {
-          email: email,
           calendar_id: calendarId
         };
       
@@ -236,7 +235,7 @@ const ViewCalendar = () => {
                             <span
                             className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
                             <span className="w-2 h-2 mr-1 bg-blue-500 rounded-full"></span>
-                            <button onClick={() => acceptRequest(req, calendar.id)} className="underline">Accept Request</button>
+                            <button onClick={() => acceptRequest(calendar.id)} className="underline">Accept Request</button>
                             </span>
                         </>
                     </div>
