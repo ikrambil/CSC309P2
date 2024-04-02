@@ -41,7 +41,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "https://csc309p2.onrender.com/accounts/login/",
+        "http://localhost:8000/accounts/login/",
         {
           method: "POST",
           headers: {

@@ -6,7 +6,6 @@ import ContactDropdown from './ContactDropdown';
 import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate} from 'react-router-dom';
 
 
 const CreateCalendar = () => {
