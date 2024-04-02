@@ -21,7 +21,7 @@ const ContactPage = () => {
       };
 
       const response = await fetch(
-        "https://csc309p2.onrender.com/accounts/profile/deletecontact/",
+        "http://localhost:8000/accounts/profile/deletecontact/",
         {
           method: "PATCH",
           headers: {
@@ -53,7 +53,7 @@ const ContactPage = () => {
       console.log("fetched");
       try {
         const response = await fetch(
-          "https://csc309p2.onrender.com/accounts/profile/contacts/",
+          "http://localhost:8000/accounts/profile/contacts/",
           {
             method: "GET",
             headers: {
@@ -95,7 +95,7 @@ const ContactPage = () => {
 
     try {
       const response = await fetch(
-        "https://csc309p2.onrender.com/accounts/profile/addcontact/",
+        "http://localhost:8000/accounts/profile/addcontact/",
         {
           method: "PATCH",
           headers: {
