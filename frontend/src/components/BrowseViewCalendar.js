@@ -48,10 +48,9 @@ const BrowseViewCalendar = () => {
     return <div>Loading...</div>;
     }
 
-    const sendRequest = async (email, calendarId) => {
+    const sendRequest = async (calendarId) => {
       const url = `http://localhost:8000/calendars/request/${calendarId}/`;
       const data = {
-        email: email,
         calendar_id: calendarId
       };
       console.log(data)
