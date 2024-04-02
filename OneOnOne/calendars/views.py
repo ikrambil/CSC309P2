@@ -155,14 +155,17 @@ class CalendarUpdateRequestsView(APIView):
 
         # Load the current requests data
         current_requests = calendar.get_requests_emails()
-        
+        print(current_requests)
         
         new_request_email = request.data.get('email')
+        print(new_request_email)
 
         # Check if the email is already in the requests list
-        if new_request_email and new_request_email not in current_requests:
+        if new_request_email not in current_requests:
             # Append the new email request to the current requests list
+            print(current_requests)
             current_requests.append(new_request_email)
+            
             
             calendar.requests = current_requests  # Assign the list directly; conversion is handled in save()
             calendar.save()
@@ -179,27 +182,54 @@ class CalendarAcceptRequestsView(APIView):
 
         # Load the current requests data
         current_requests = calendar.get_requests_emails()
-
-        data = request.data
-        newEmail = data.get('email')    #Get email of person who requested to join
+        newEmail = request.data.get('email')    #Get email of person who requested to join
         participant_emails = calendar.get_participant_emails()
+        stat = request.data.get('status')
 
-        if newEmail:
-
-            # Add user as contact
-            if newEmail not in participant_emails:
-                newContact = Contact.objects.create(request.user, "", newEmail)
-                newContact.save()
-
-
-            # Add user to list of participants
-            participant_emails.append(newEmail)
-            calendar.participants = participant_emails
-
-            # Remove request from current_requests
+        if stat == 'decline':
+            # Remove request from current_requests if it exists
             if newEmail in current_requests:
                 current_requests.remove(newEmail)
                 calendar.requests = current_requests
+                calendar.save()
+
+
+            send_mail(
+                'Sorry but your request has been declined',
+                f'Your request to join {calendar.name} has been declined, we apologize for the inconvinience',
+                'OneOnOne@mail.com',  # Use your actual email
+                [newEmail],
+                fail_silently=False,
+            )
+            return Response({"message": "Request Declined, the user has been sent a notification"}, status=status.HTTP_200_OK)
+        if newEmail:
+            # Attempt to find a user by email to get their name
+            users = User.objects.filter(email=newEmail)
+            if users.exists():
+                user = users.first()  # Take the first user matching the email
+                user_name = f"{user.first_name} {user.last_name}".strip()
+            else:
+                user_name = ""  # Default to empty string if user not found
+
+            # Check if contact already exists
+            contact_exists = Contact.objects.filter(owner=request.user, email=newEmail).exists()
+
+            if not contact_exists:
+                # Since contact does not exist, create a new one
+                newContact = Contact.create(owner=request.user, name=user_name, email=newEmail)
+                newContact.save()
+
+            # Check if the user is not already a participant
+            if newEmail not in participant_emails:
+                # Add user to list of participants
+                participant_emails.append(newEmail)
+                calendar.participants = participant_emails
+
+            # Remove request from current_requests if it exists
+            if newEmail in current_requests:
+                current_requests.remove(newEmail)
+                calendar.requests = current_requests
+
             calendar.save()
 
             # Create invitation for user
@@ -215,7 +245,7 @@ class CalendarAcceptRequestsView(APIView):
                 fail_silently=False,
             )
 
-            return Response({"message": "User added successfully."}, status=status.HTTP_200_OK)
+            return Response({"message": "Request Accepted, the user has been sent a notification"}, status=status.HTTP_200_OK)
         
         return Response({"message": "Invalid request or user does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 

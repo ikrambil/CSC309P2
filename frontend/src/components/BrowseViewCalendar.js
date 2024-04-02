@@ -17,6 +17,7 @@ const BrowseViewCalendar = () => {
     let { calendarId } = useParams(); // Assuming you're passing the calendar ID in the route
     const [calendar, setCalendar] = useState(null);
     const [isRequested, setIsRequested] = useState(false);
+    
 
     useEffect(() => {
     // Placeholder for API call to fetch calendar details
@@ -44,11 +45,21 @@ const BrowseViewCalendar = () => {
     fetchCalendarDetails();
     }, [calendarId]);
 
+    useEffect(() => {
+      // Example useEffect, adjust based on actual use-case
+      if (calendar?.requests.includes(userEmail)) {
+        setIsRequested(true);
+      }
+    }, [calendar, userEmail]);
+  
     if (!calendar) {
-    return <div>Loading...</div>;
+      return <div>Loading calendar...</div>;
     }
 
-    const sendRequest = async () => {
+    console.log('asdfasfa')
+
+
+    const sendRequest = async (calendarId) => {
       const url = `http://localhost:8000/calendars/request/${calendarId}/`;
       const data = {
         calendar_id: calendarId,
@@ -88,6 +99,7 @@ const BrowseViewCalendar = () => {
             EndTime: new Date(slot.end_time)
         };
     });
+    
 
 
   return (
@@ -132,7 +144,7 @@ const BrowseViewCalendar = () => {
             </ScheduleComponent>
         
         <button disabled={isRequested}
-          onClick={() => sendRequest()}
+          onClick={() => sendRequest(calendar.id)}
           className="mt-8 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
           {isRequested ? 'Request Sent' : 'Send Request To Join'}

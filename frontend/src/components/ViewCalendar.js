@@ -11,7 +11,7 @@ registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHV
 
 
 const ViewCalendar = () => {
-    const { accessToken } = useAuth();
+    const { accessToken, userEmail } = useAuth();
     let navigate = useNavigate();
     let { calendarId } = useParams(); // Assuming you're passing the calendar ID in the route
     const [calendar, setCalendar] = useState(null);
@@ -88,16 +88,17 @@ const ViewCalendar = () => {
         }
       };
       
-      const acceptRequest = async (reqEmail, calendarId) => {
+      const acceptRequest = async (reqEmail, calendarId, status) => {
         const url = `http://localhost:8000/calendars/accept/${calendarId}/`;
         const data = {
           calendar_id: calendarId,
-          email: reqEmail
+          email: reqEmail,
+          status: status,
         };
       
         try {
           const response = await fetch(url, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${accessToken}`, 
@@ -111,7 +112,7 @@ const ViewCalendar = () => {
       
           const responseData = await response.json();
           console.log(responseData.message);
-          alert(`Notification sent to ${reqEmail}.`); // You can replace this with a more user-friendly notification
+          alert(`${responseData.message}.`); // You can replace this with a more user-friendly notification
         } catch (error) {
           console.error('Failed to send notification:', error);
           alert('Failed to send notification.'); // You can replace this with a more user-friendly notification
@@ -233,7 +234,7 @@ const ViewCalendar = () => {
                 ))}
             </ul>
         </div>
-
+        {calendar.requests.length > 0 &&
         <div className="mb-6">
             <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center text-center">
                 <h1 className="text-xl md:text-2xl text-center">Requests To Join:</h1>
@@ -253,7 +254,12 @@ const ViewCalendar = () => {
                             <span
                             className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
                             <span className="w-2 h-2 mr-1 bg-blue-500 rounded-full"></span>
-                            <button onClick={() => acceptRequest(req, calendar.id)} className="underline">Accept Request</button>
+                            <button onClick={() => acceptRequest(req, calendar.id, 'accept')} className="underline">Accept Request</button>
+                            </span>
+                            <span
+                            className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <span className="w-2 h-2 mr-1 bg-red-500 rounded-full"></span>
+                            <button onClick={() => acceptRequest(req, calendar.id, 'decline')} className="underline">Decline Request</button>
                             </span>
                         </>
                     </div>
@@ -262,6 +268,7 @@ const ViewCalendar = () => {
                 ))}
             </ul>
         </div>
+}
 
         <button
           onClick={() => {
