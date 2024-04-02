@@ -52,8 +52,9 @@ function Login() {
       );
 
       const data = await response.json();
+      console.log(data)
       if (response.ok) {
-        login(data.access);
+        login(data.access, data.user_email, data.username);
         navigate("/dashboard");
       } else {
         setApiError("Login failed, please try again.");

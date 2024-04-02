@@ -2,7 +2,7 @@ import React from 'react';
 import {Link } from 'react-router-dom';
 
 
-const BrowseCalendarCard = ({ title, id, description, link, pending, accepted, finalized }) => {
+const BrowseCalendarCard = ({ title, id, description, link, pending, accepted, finalized, timeRangeStart, timeRangeEnd }) => {
     const totalInvitations = parseInt(pending, 10) + parseInt(accepted, 10);
     const maxLength = 100; // Maximum length of the description
 
@@ -26,16 +26,12 @@ const BrowseCalendarCard = ({ title, id, description, link, pending, accepted, f
   }
   
   return (
-    <div className="card bg-white border border-gray-200 rounded-lg shadow-md p-4 m-4 w-full aspect-ratio-4/3 transition-transform duration-300 hover:-translate-y-1">
+    <div className="card-explore bg-white border border-gray-200 rounded-lg shadow-md p-4 m-4 w-full aspect-ratio-4/3 transition-transform duration-300 hover:-translate-y-1">
       <div className="flex justify-between items-left p-4">
         <div className="flex-1">
           <h5 className="text-2xl font-bold text-gray-900">{title}</h5>
           <p className="text-gray-500 text-xl py-2">{truncatedDescription}</p>
-          <p className="text-gray-500 py-2">{parseInt(accepted, 10)}/{totalInvitations} invitations accepted</p>
-          <span className={`inline-flex items-center ${statusStyle} text-xs font-medium px-2.5 py-0.5 rounded-full mt-4`}>
-            <span className={`w-2 h-2 me-1 ${statusIndicatorColor} rounded-full`}></span>
-            {statusText}
-          </span>
+          <p className="text-gray-500 text-lg py-2">Date Range: {timeRangeStart} - {timeRangeEnd}</p>
         </div>
       </div>
       <div className="p-4 pt-8 border-t border-gray-200 ">

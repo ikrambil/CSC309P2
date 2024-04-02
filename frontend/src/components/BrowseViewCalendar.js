@@ -11,10 +11,12 @@ registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHV
 
 
 const BrowseViewCalendar = () => {
-    const { accessToken } = useAuth();
+    const { accessToken, userEmail, userName } = useAuth();
+    console.log(userName)
     let navigate = useNavigate();
     let { calendarId } = useParams(); // Assuming you're passing the calendar ID in the route
     const [calendar, setCalendar] = useState(null);
+    const [isRequested, setIsRequested] = useState(false);
 
     useEffect(() => {
     // Placeholder for API call to fetch calendar details
@@ -45,8 +47,6 @@ const BrowseViewCalendar = () => {
     if (!calendar) {
     return <div>Loading...</div>;
     }
-    console.log(calendar);
-    console.log(typeof calendar.availability);
 
     const sendRequest = async (email, calendarId) => {
       const url = `http://localhost:8000/calendars/request/${calendarId}/`;
@@ -54,13 +54,14 @@ const BrowseViewCalendar = () => {
         email: email,
         calendar_id: calendarId
       };
+      console.log(data)
+      console.log(userEmail)
     
       try {
         const response = await fetch(url, {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`, 
           },
           body: JSON.stringify(data),
         });
@@ -71,6 +72,7 @@ const BrowseViewCalendar = () => {
     
         const responseData = await response.json();
         console.log(responseData.message);
+        setIsRequested(true);
         alert(`Request sent to calendar owner`); // You can replace this with a more user-friendly notification
       } catch (error) {
         console.error('Failed to send request:', error);
@@ -93,7 +95,7 @@ const BrowseViewCalendar = () => {
       <Sidebar />
       <div className='p-8 sm:ml-64'>
         <div className="text-left w-full border-b p-4 flex justify-between mb-4 items-center">
-            <h1 className="text-2xl md:text-4xl">View Your Calendar:</h1>
+            <h1 className="text-2xl md:text-4xl">Check out this Event!</h1>
         </div>
         <div className='flex flex-col items-center'>
         <div className="mb-6">
@@ -129,28 +131,9 @@ const BrowseViewCalendar = () => {
               <Inject services={[Day, Week, Month, Year, Agenda]} />
             </ScheduleComponent>
         
-        <div className="mb-6">
-            <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center text-center">
-                <h1 className="text-xl md:text-2xl text-center">Invitations:</h1>
-            </div>
-            <ul className='max-w-sm divide-y divide-gray-200 dark:divide-gray-700 mr-auto p-8 pt-0'>
-                {calendar.invitations.map((invitation, index) => (
-                <li key={index} className="py-3 sm:py-4">
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate dark:text-white">
-                        {invitation.invitee_email}
-                        </p>
-                    </div>
-                    
-                    </div>
-                </li>
-                ))}
-            </ul>
-        </div>
         <button disabled={isRequested}
-          onClick={() => sendRequest(user.email, calendar.id)}
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          onClick={() => sendRequest(userEmail, calendar.id)}
+          className="mt-8 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
         >
           {isRequested ? 'Request Sent' : 'Send Request To Join'}
         </button>

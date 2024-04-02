@@ -9,7 +9,7 @@ class Calendar(models.Model):
     description = models.TextField(blank=True)
     owner = models.ForeignKey(User, related_name='owned_calendars', on_delete=models.CASCADE)
     participants = models.TextField(default='[]')  # To store participant emails as a JSON list
-    requests = models.TextField(default='[]') # Store emails of users who requested to join calendar as a JSON list
+    requests = models.TextField(default='[]', blank=True) # Store emails of users who requested to join calendar as a JSON list
     availability = models.TextField(default='[]')  # Stores serialized JSON string
     finalized = models.BooleanField(default=False)
     finalized_schedule = models.TextField(default='[]', blank=True, null=True) # Stores the finalized schedule as serialized JSON string

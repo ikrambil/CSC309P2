@@ -60,8 +60,6 @@ class CalendarAcceptRequestsView(APIView):
         data = request.data
         requests = data.pop('requests')
         
-        
-
 
 class CalendarDetailView(RetrieveAPIView):
     queryset = Calendar.objects.all()
@@ -91,7 +89,7 @@ class BrowseCalendarsView(APIView):
 
         # Prefetch invitations to optimize database queries
         invitations = Invitation.objects.all()
-        calendars = Calendar.objects.filter().exclude(owner=user).prefetch_related(
+        calendars = Calendar.objects.filter().exclude(owner=user).exclude(finalized=True).prefetch_related(
             Prefetch('invitations', queryset=invitations)
         )
         serializer = CalendarDetailSerializer(calendars, many=True)
@@ -130,40 +128,28 @@ class CalendarUpdateAvailabilityView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CalendarUpdateRequestsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def patch(self, request, pk, *args, **kwargs):
         calendar = get_object_or_404(Calendar, pk=pk)
 
-        # Load the current calendar data and update it with the new data provided in the request
-        name = request.data.get('name')
-        description = request.data.get('description')
-        participants = request.data.get('participants')
-        new_availability = request.data.get('availability')
-        req = request.data.get('request')
-
-        calendar.requests.append(req)
-
-
-        if new_availability is None:
-            return Response({'error': 'Availability data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Load the current requests data
+        current_requests = calendar.get_requests_emails()
         
-        # Update the calendar fields if provided
-        if name is not None:
-            calendar.name = name
-        if description is not None:
-            calendar.description = description
-        if participants is not None:
-            # Assuming participants is a list of email addresses and stored as a JSON string in the model
-            # Validate and serialize the list as necessary before saving
-            calendar.participants = participants
-        
-        calendar.availability = new_availability
-        calendar.save()
+        # Get the new email request from the request data
+        new_request_email = request.data.get('email')
 
-        # Optionally, return the updated calendar data using a serializer
-        serializer = CalendarSerializer(calendar)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Check if the email is already in the requests list
+        if new_request_email and new_request_email not in current_requests:
+            # Append the new email request to the current requests list
+            current_requests.append(new_request_email)
+            
+            calendar.requests = current_requests  # Assign the list directly; conversion is handled in save()
+            calendar.save()
+
+            return Response({"message": "Request added successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Invalid request or email already requested."}, status=status.HTTP_400_BAD_REQUEST)
 
 class CalendarRecommendationsView(APIView):
     permission_classes = [IsAuthenticated]
