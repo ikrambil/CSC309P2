@@ -11,7 +11,37 @@ const ContactPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Correct initial state
   const [contacts, setContacts] = useState([]); // State to store contacts
   const [triggerFetch, setTriggerFetch] = useState(false); // State to trigger re-fetch of contacts list
+  const [errorMessage, setErrorMessage] = useState(""); // Modal error message
   const { accessToken } = useAuth();
+
+  const deleteContact = async (email) => {
+    try {
+      const contactData = {
+        contact_email: email,
+      };
+
+      const response = await fetch(
+        "https://csc309p2.onrender.com/accounts/profile/deletecontact/",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(contactData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log("Contact deleted successfully");
+      setTriggerFetch(!triggerFetch); // Trigger a re-fetch of the contacts list
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+    }
+  };
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -48,6 +78,16 @@ const ContactPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage("");
+
+    // Check if the email already exists in the contacts
+    const emailExists = contacts.some((contact) => contact.email === email);
+
+    if (emailExists) {
+      setErrorMessage("This email already exists in your contacts.");
+      return;
+    }
+
     const contactData = {
       contact_name: name,
       contact_email: email,
@@ -60,7 +100,7 @@ const ContactPage = () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(contactData),
         }
@@ -164,6 +204,9 @@ const ContactPage = () => {
                     required
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  {errorMessage && (
+                    <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
+                  )}
                 </div>
                 <div className="flex justify-end">
                   <button
@@ -179,7 +222,7 @@ const ContactPage = () => {
         )}
 
         {contacts.length > 0 ? (
-          <ContactList contacts={contacts} />
+          <ContactList contacts={contacts} onDelete={deleteContact} />
         ) : (
           <div className="text-center p-5">
             <p>You have no contacts</p>
