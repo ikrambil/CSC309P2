@@ -1,6 +1,5 @@
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import get_user_model, authenticate, logout, login
@@ -50,11 +49,11 @@ class LoginView(generics.CreateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
-    serializer_class = TokenObtainPairSerializer
+    serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
+        print(request.data)
         try:
             serializer.is_valid(raise_exception=True)
         except Exception as e:

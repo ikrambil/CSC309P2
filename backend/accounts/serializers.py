@@ -2,6 +2,10 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from .models import Contact
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
+
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -38,6 +42,17 @@ class EditProfileSerializer(serializers.ModelSerializer):
         # Allow leaving password field empty
         return value
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        refresh = self.get_token(self.user)
+
+        # Add the custom data
+        data['user_email'] = self.user.email
+        data['username'] = self.user.username
+
+        return data
 
 class AddContactSerializer(serializers.ModelSerializer):
     contact_name = serializers.CharField(max_length=120, required=True)
