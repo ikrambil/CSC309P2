@@ -37,7 +37,7 @@ const CreateCalendar = () => {
 
   useEffect(() => {
     const fetchContacts = async () => {
-        const url = 'http://127.0.0.1:8000/accounts/profile/contacts/';
+        const url = 'http://localhost:8000/accounts/profile/contacts/';
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -139,7 +139,7 @@ const handleSubmit = async (e) => {
   });
   console.log(requestData)
   try {
-    const response = await fetch('http://127.0.0.1:8000/calendars/create/', {
+    const response = await fetch('http://localhost:8000/calendars/create/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

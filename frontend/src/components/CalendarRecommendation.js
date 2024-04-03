@@ -139,7 +139,7 @@ const CalendarRecommendation = () => {
 
             const responseData = await response.json();
             console.log(responseData.message);
-            alert(`Confirmation sent to ${email}.`);
+            //alert(`Confirmation sent to ${email}.`);
         }
         catch(error){
             console.error('Failed to send confirmation: ', error);
