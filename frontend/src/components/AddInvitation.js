@@ -186,7 +186,7 @@ const AddInvite = () => {
         <div className="mb-6 flex-col justify-center">
             <div className="text-left w-full border-b p-4 flex justify-left mb-4 items-left">
             <h1 className="text-xl md:text-2xl">
-                {invitation && invitation.availability && invitation.availability.length > 0 ? "Update your availability:" : "Please put in your availability:"}
+                {invitation && invitation.availability && invitation.availability.length > 0 ? "Please put in your availability:": "Update your availability:"}
                 </h1>
 
             </div>
