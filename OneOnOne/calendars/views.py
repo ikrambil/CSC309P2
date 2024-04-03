@@ -76,17 +76,23 @@ class UserCalendarsView(APIView):
 
 class BrowseCalendarsView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
+        user_email = user_email = request.user.email  # Assuming `email` is the attribute to check in participants
 
         # Prefetch invitations to optimize database queries
         invitations = Invitation.objects.all()
-        calendars = Calendar.objects.filter().exclude(owner=user).exclude(finalized=True).prefetch_related(
+        initial_calendars = Calendar.objects.filter().exclude(owner=user).exclude(finalized=True).prefetch_related(
             Prefetch('invitations', queryset=invitations)
         )
-        serializer = CalendarDetailSerializer(calendars, many=True)
+
+        # Manually filter out calendars where user is a participant
+        filtered_calendars = [calendar for calendar in initial_calendars if user_email not in json.loads(calendar.participants)]
+
+        serializer = CalendarDetailSerializer(filtered_calendars, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 class CalendarUpdateAvailabilityView(APIView):
     permission_classes = [IsAuthenticated]
 

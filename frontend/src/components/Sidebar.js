@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import calendar_logo from "../images/calendar_logo.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Sidebar = () => {
       <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
         <div className="flex ps-2.5 mb-5 justify-between">
             <Link to="/dashboard" className='flex items-center p-1.5'>
-                <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
+                <img src={calendar_logo} className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
                 <span className="self-center text-xl font-semibold whitespace-nowrap ">1on1</span>
             </Link>
             <button type="button" data-drawer-hide="logo-sidebar" aria-controls="logo-sidebar" className="text-gray-400 sm:hidden bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" >
