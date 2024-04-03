@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useCallback }  from 'react';
+import { useNavigate } from "react-router-dom";
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import ContactDropdown from './ContactDropdown';
 import AvailabilityPicker from './Availibility';
 import { formatISO, parseISO, format, subHours, startOfDay } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate} from 'react-router-dom';
 
 
 const CreateCalendar = () => {
   const { accessToken } = useAuth();
   let navigate = useNavigate();
-
   const [calendarName, setCalendarName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -38,7 +37,7 @@ const CreateCalendar = () => {
 
   useEffect(() => {
     const fetchContacts = async () => {
-        const url = 'http://localhost:8000/accounts/profile/contacts/';
+        const url = 'http://127.0.0.1:8000/accounts/profile/contacts/';
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -140,7 +139,7 @@ const handleSubmit = async (e) => {
   });
   console.log(requestData)
   try {
-    const response = await fetch('http://localhost:8000/calendars/create/', {
+    const response = await fetch('http://127.0.0.1:8000/calendars/create/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -151,6 +150,9 @@ const handleSubmit = async (e) => {
 
     if (!response.ok) {
         throw new Error('Network response was not ok.');
+    }
+    else {
+      navigate("/dashboard");
     }
 
     // Handle successful submission

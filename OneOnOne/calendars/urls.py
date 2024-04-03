@@ -1,9 +1,12 @@
 from django.urls import path
-from .views import CalendarCreateView, CalendarDetailView, UpdateInvitationView, CalendarRecommendationsView, InvitationDetailView, SendReminderView, FinalizeCalendarView, CalendarUpdateAvailabilityView, UserCalendarsView, SendConfirmationView
+from .views import CalendarAcceptRequestsView, CalendarUpdateRequestsView, BrowseCalendarsView, CalendarCreateView, CalendarDetailView, UpdateInvitationView, CalendarRecommendationsView, InvitationDetailView, SendReminderView, FinalizeCalendarView, CalendarUpdateAvailabilityView, UserCalendarsView, SendConfirmationView
 
 urlpatterns = [
     path('create/', CalendarCreateView.as_view(), name='create-calendar'),
     path('all/', UserCalendarsView.as_view(), name='user-calendars'),
+    path('browse/', BrowseCalendarsView.as_view(), name='browse-calendars'),
+    path('request/<int:pk>/', CalendarUpdateRequestsView.as_view(), name='browse-request-calendars'),
+    path('accept/<int:pk>/', CalendarAcceptRequestsView.as_view(), name='browse-accept-calendars'),
     path('<int:pk>/', CalendarDetailView.as_view(), name='calendar-detail'),
     path('<int:pk>/update-availability/', CalendarUpdateAvailabilityView.as_view(), name='update-calendar-availability'),
     path('send-reminder/', SendReminderView.as_view(), name='send-reminder'),

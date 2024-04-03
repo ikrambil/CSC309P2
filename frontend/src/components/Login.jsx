@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import calendar_logo from "../images/calendar_logo.png"
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -52,8 +53,9 @@ function Login() {
       );
 
       const data = await response.json();
+      console.log(data)
       if (response.ok) {
-        login(data.access);
+        login(data.access, data.user_email, data.username);
         navigate("/dashboard");
       } else {
         setApiError("Login failed, please try again.");
@@ -72,7 +74,7 @@ function Login() {
         >
           <img
             className="w-8 h-8 mr-2"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+            src={calendar_logo}
             alt="logo"
           />
           1on1

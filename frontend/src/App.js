@@ -14,6 +14,8 @@ import 'flowbite';
 import FinalizedCalendar from './components/FinalizedCalendar';
 import CalendarRecommendation from './components/CalendarRecommendation';
 import ContactPage from './components/Contacts/ContactPage.jsx';
+import BrowsePage from './components/BrowsePage.js'
+import BrowseViewCalendar from './components/BrowseViewCalendar.js'
 
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -31,12 +33,14 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-calendar" element={<ProtectedRoute><CreateCalendar /></ProtectedRoute>} />
           <Route path="/view-calendar/:calendarId" element={<ProtectedRoute><ViewCalendar /></ProtectedRoute>} />
+          <Route path="/browse-view-calendar/:calendarId" element={<ProtectedRoute><BrowseViewCalendar /></ProtectedRoute>} />
           <Route path="/edit-calendar/:calendarId" element={<ProtectedRoute><EditCalendar /></ProtectedRoute>} />
           <Route path="/edit-invite/:token" element={<AddInvite />} />
           <Route path="/view-invite/:token" element={<ViewInvite />} />
           <Route path="/finalizedCalendar/:calendarId" element={<ProtectedRoute><FinalizedCalendar /></ProtectedRoute>} />
           <Route path='/recommendedCalendars/:calendarId' element={<ProtectedRoute><CalendarRecommendation /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
+          <Route path="/browse" element={<ProtectedRoute><BrowsePage /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>

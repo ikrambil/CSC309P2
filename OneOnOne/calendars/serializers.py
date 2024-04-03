@@ -24,10 +24,11 @@ def validate_availability(availability):
 
 class CalendarSerializer(serializers.ModelSerializer):
     participants = serializers.ListField(child=serializers.EmailField(), required=False)
+    requests = serializers.ListField(child=serializers.EmailField(), required=False)
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner', 'participants', 'availability']
+        fields = ['id', 'name', 'description', 'owner', 'participants', 'availability', 'requests']
         extra_kwargs = {'owner': {'read_only': True}}  # Make owner read-only to avoid it being required in the input
 
     def create(self, validated_data):
@@ -35,7 +36,8 @@ class CalendarSerializer(serializers.ModelSerializer):
         print(participants)
         # Serialize participants list to JSON string before saving, if not using ArrayField
         participants_json = json.dumps(participants, cls=DjangoJSONEncoder)
-        calendar = Calendar.objects.create(**validated_data, participants=participants_json)
+        requests_json = json.dumps([], cls=DjangoJSONEncoder)
+        calendar = Calendar.objects.create(**validated_data, participants=participants_json, requests=requests_json)
         return calendar
     
     # TODO: uncomment this when the Contact model is done and pushed.
@@ -75,7 +77,7 @@ class CalendarDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'description', 'owner_username', 'participants', 'availability', 'invitations', 'finalized', 'finalized_schedule', 'pendingInvitationsCount', 
+        fields = ['id', 'name', 'description', 'owner_username', 'participants', 'requests', 'availability', 'invitations', 'finalized', 'finalized_schedule', 'pendingInvitationsCount', 
             'acceptedInvitationsCount']
 
     

@@ -43,7 +43,7 @@ const Dashboard = () => {
     <div className="app-container">
         <div className="p-8 sm:ml-64">
             <div className="text-4xl text-left w-full border-b p-4">
-                <h1 className="font-bold">Calendars:</h1>
+                <h1 className="font-bold">Calendars</h1>
             </div>
             {calendars.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-4">

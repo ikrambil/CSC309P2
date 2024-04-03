@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import calendar_logo from "../images/calendar_logo.png"
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -104,7 +105,7 @@ function SignUp() {
         >
           <img
             className="w-8 h-8 mr-2"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+            src={calendar_logo}
             alt="logo"
           />
           1on1

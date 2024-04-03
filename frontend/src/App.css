@@ -47,6 +47,10 @@
   transition: transform 0.3s;
 }
 
+.card-explore{
+  border-bottom: 8px solid #16a8c2 !important;
+  transition: transform 0.3s;
+}
 
 /* In your main CSS file (e.g., App.css) */
 .app-container {

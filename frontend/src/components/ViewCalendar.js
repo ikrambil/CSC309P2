@@ -11,7 +11,7 @@ registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHV
 
 
 const ViewCalendar = () => {
-    const { accessToken } = useAuth();
+    const { accessToken, userEmail } = useAuth();
     let navigate = useNavigate();
     let { calendarId } = useParams(); // Assuming you're passing the calendar ID in the route
     const [calendar, setCalendar] = useState(null);
@@ -31,6 +31,17 @@ const ViewCalendar = () => {
 
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
+
+        if (typeof data.requests === 'string') {
+          try {
+            data.requests = JSON.parse(data.requests);
+          } catch (error) {
+            console.error('Error parsing requests:', error);
+            // Handle parsing error (e.g., set requests to an empty array)
+            data.requests = []; // Default to an empty array if parsing fails
+          }
+        }
+
         setCalendar(data)
     } catch (error) {
         console.error('No Calendar exists', error);
@@ -45,8 +56,8 @@ const ViewCalendar = () => {
     if (!calendar) {
     return <div>Loading...</div>;
     }
-    console.log(calendar);
-    console.log(typeof calendar.availability);
+    console.log(calendar.invitations);
+    console.log(typeof calendar.invitations);
     const sendReminder = async (email, calendarId) => {
         const url = 'http://localhost:8000/calendars/send-reminder/';
         const data = {
@@ -76,6 +87,37 @@ const ViewCalendar = () => {
           alert('Failed to send reminder.'); // You can replace this with a more user-friendly notification
         }
       };
+      
+      const acceptRequest = async (reqEmail, calendarId, status) => {
+        const url = `http://localhost:8000/calendars/accept/${calendarId}/`;
+        const data = {
+          calendar_id: calendarId,
+          email: reqEmail,
+          status: status,
+        };
+      
+        try {
+          const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`, 
+            },
+            body: JSON.stringify(data),
+          });
+      
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+      
+          const responseData = await response.json();
+          console.log(responseData.message);
+          alert(`${responseData.message}.`); // You can replace this with a more user-friendly notification
+        } catch (error) {
+          console.error('Failed to send notification:', error);
+          alert('Failed to send notification.'); // You can replace this with a more user-friendly notification
+        }
+      }; 
 
       const events = (calendar.availability || []).map((slot, index) => {
         return {
@@ -85,6 +127,7 @@ const ViewCalendar = () => {
             EndTime: new Date(slot.end_time)
         };
     });
+    
 
     const getCalendarStatusText = ({ pending, accepted, finalized }) => {
       const totalInvitations = parseInt(pending, 10) + parseInt(accepted, 10);
@@ -191,6 +234,42 @@ const ViewCalendar = () => {
                 ))}
             </ul>
         </div>
+        {calendar.requests.length > 0 &&
+        <div className="mb-6">
+            <div className="text-left w-full border-b p-4 flex justify-center mb-4 items-center text-center">
+                <h1 className="text-xl md:text-2xl text-center">Requests To Join:</h1>
+            </div>
+            <ul className='max-w-sm divide-y divide-gray-200 dark:divide-gray-700 mr-auto p-8 pt-0'>
+                {Array.isArray(calendar.requests) && calendar.requests.map((req, index) => (
+                <li key={index} className="py-3 sm:py-4">
+                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate dark:text-white">
+                        {req}
+                        </p>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                    <>
+                            
+                            <span
+                            className="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                            <span className="w-2 h-2 mr-1 bg-blue-500 rounded-full"></span>
+                            <button onClick={() => acceptRequest(req, calendar.id, 'accept')} className="underline">Accept Request</button>
+                            </span>
+                            <span
+                            className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <span className="w-2 h-2 mr-1 bg-red-500 rounded-full"></span>
+                            <button onClick={() => acceptRequest(req, calendar.id, 'decline')} className="underline">Decline Request</button>
+                            </span>
+                        </>
+                    </div>
+                    </div>
+                </li>
+                ))}
+            </ul>
+        </div>
+}
+
         <button
           onClick={() => {
             if (calendarStatusText === 'Finalized') {
